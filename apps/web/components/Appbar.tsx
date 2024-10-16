@@ -37,8 +37,16 @@ export function Appbar({ className }: { className?: string }) {
       )}
     >
       <Link href="/" className="flex items-center gap-2" prefetch={false}>
-        <CodeIcon className="h-6 w-6" />
-        <span className="text-lg font-bold">Code100x</span>
+      <img
+          className="hidden dark:block"
+          src="/App-logo-light.svg"
+          alt="Light mode hero image"
+        />
+        <img
+          className="block dark:hidden"
+          src="/App-logo-dark.svg"
+          alt="Dark mode hero image"
+        />
       </Link>
       <nav className="hidden md:flex items-center gap-6">
         {links.map((link, index) => (

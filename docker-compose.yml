@@ -1,4 +1,4 @@
-version: '3.5'
+# version: '3.5'
 
 services:
   # Next Auth Not Working in Docker
@@ -26,7 +26,7 @@ services:
     restart: always
     env_file: judge0.conf
     ports:
-      - '5432:5432'
+      - '5431:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -42,10 +42,10 @@ services:
     volumes:
       - ./judge0.conf:/judge0.conf:ro
       - type: bind
-        source: "##YOUR_LOCAL_PATH_TO_PROBLEMS_DIR## [repo]/apps/problems"
+        source: "/home/mayank/open source/algo-2/algorithmic-arena/apps/problems"
         target: /dev/problems
     ports:
-      - "2358:2358"
+      - "2357:2358"
     privileged: true
     restart: always
     logging:
@@ -57,7 +57,7 @@ services:
     volumes:
       - ./judge0.conf:/judge0.conf:ro
       - type: bind
-        source: "##YOUR_LOCAL_PATH_TO_PROBLEMS_DIR## [repo]/apps/problems"
+        source: "/home/mayank/open source/algo-2/algorithmic-arena/apps/problems"
         target: /dev/problems
     privileged: true
     restart: always
@@ -73,7 +73,7 @@ services:
     env_file: judge0.conf
     restart: always
     ports: 
-      - '6379:6379'
+      - '6380:6379'
     logging:
       driver: none
     volumes:
