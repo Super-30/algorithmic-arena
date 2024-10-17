@@ -52,7 +52,7 @@ export const ProblemSubmitBar = ({
   const [activeTab, setActiveTab] = useState("problem");
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6">
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6 h-fit">
       <div className="grid gap-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
