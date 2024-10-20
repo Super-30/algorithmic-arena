@@ -44,7 +44,7 @@ export const getProblem = async (problemId: string, contestId?: string) => {
 export const getProblems = async (query?: string): Promise<Problem[]> => {
   const problems = await db.problem.findMany({
     where: {
-      hidden: false,
+      hidden: true,
       ...(query && {
         title: {
           contains: query,
