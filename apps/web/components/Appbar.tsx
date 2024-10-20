@@ -28,6 +28,10 @@ export function Appbar({ className }: { className?: string }) {
       name: "Standings",
       href: "/standings",
     },
+    {
+      name: "DSA Roadmap",
+      href: "/roadmap",
+    },
   ];
 
   return (
