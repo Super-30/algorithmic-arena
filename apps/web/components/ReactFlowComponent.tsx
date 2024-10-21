@@ -1,18 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ReactFlow } from '@xyflow/react';
-import SlidingTable from './SlidingTable'; // Import the SlidingTable component
+import SlidingTable from './SlidingTable';
 import '@xyflow/react/dist/style.css';
 
 interface FlowProps {
   nodes: any[];
   edges: any[];
-  onNodeClick?: (node: any) => void; // Optional prop for node click handler
+  onNodeClick?: (node: any) => void;
 }
 
 export default function ReactFlowComponent({ nodes, edges }: FlowProps) {
-  const [selectedNode, setSelectedNode] = useState<any | null>(null); // State to store clicked node data
-  const [isTableVisible, setIsTableVisible] = useState(false); // State to manage table visibility
-
+  const [selectedNode, setSelectedNode] = useState<any | null>(null);
+  const [isTableVisible, setIsTableVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -20,7 +19,7 @@ export default function ReactFlowComponent({ nodes, edges }: FlowProps) {
     if (container) {
       const handleWheel = (event: WheelEvent) => {
         event.preventDefault();
-        container.scrollBy(0, event.deltaY); // Scroll vertically
+        container.scrollBy(0, event.deltaY);
       };
 
       container.addEventListener('wheel', handleWheel);
@@ -30,15 +29,13 @@ export default function ReactFlowComponent({ nodes, edges }: FlowProps) {
     }
   }, []);
 
-  // Handle node click
   const handleNodeClick = (node: any) => {
-    setSelectedNode(node); // Set the selected node data
-    setIsTableVisible(true); // Show the sliding table
+    setSelectedNode(node);
+    setIsTableVisible(true);
   };
 
-  // Close the SlidingTable
   const closeSlidingTable = () => {
-    setIsTableVisible(false); // Hide the sliding table
+    setIsTableVisible(false);
   };
 
   const nodeStyle = {
@@ -58,9 +55,10 @@ export default function ReactFlowComponent({ nodes, edges }: FlowProps) {
         overflow: 'hidden',
         position: 'relative',
         cursor: 'default',
+        minWidth: '320px',  // Minimum width for very small screens
       }}
     >
-      <div style={{ height: '280vh', width: '100%' }}>
+      <div style={{ height: '280vh', width: '100%', minWidth: '320px' }}>
         <ReactFlow
           nodes={nodes.map(node => ({
             ...node,
@@ -78,19 +76,19 @@ export default function ReactFlowComponent({ nodes, edges }: FlowProps) {
             height: '100%',
             display: 'flex',
             justifyContent: 'center',
+            minWidth: '320px'
           }}
           minZoom={1.5}
           maxZoom={1.5}
           draggable={false}
           className="bg-white dark:bg-gray-900"
-          onNodeClick={(event, node) => handleNodeClick(node)} // Handle node click event
+          onNodeClick={(event, node) => handleNodeClick(node)}
         />
 
-        {/* SlidingTable Component */}
         <SlidingTable
           isVisible={isTableVisible}
-          nodeData={selectedNode} // Pass the clicked node data
-          onClose={closeSlidingTable} // Handle closing of the table
+          nodeData={selectedNode}
+          onClose={closeSlidingTable}
         />
       </div>
     </div>

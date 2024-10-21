@@ -17,13 +17,13 @@ const SlidingTable: React.FC<SlidingTableProps> = ({ isVisible, nodeData, onClos
     // Add event listener for keydown
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      // Cleanup the event listener
+      // 
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [onClose]);
 
   // Check for dark mode
-  const isDarkMode = document.documentElement.classList.contains('dark'); // Adjust based on your theme implementation
+  const isDarkMode = document.documentElement.classList.contains('dark'); 
 
   return (
     <>
@@ -35,8 +35,9 @@ const SlidingTable: React.FC<SlidingTableProps> = ({ isVisible, nodeData, onClos
             left: 0,
             width: '100%',
             height: '100%',
-            backdropFilter: 'blur(5px)', // Blur the main content
-            zIndex: 999, // Under the sliding table
+            backdropFilter: 'blur(8px)', 
+            zIndex: 999, 
+            padding: '20px',
           }}
         />
       )}
@@ -48,16 +49,22 @@ const SlidingTable: React.FC<SlidingTableProps> = ({ isVisible, nodeData, onClos
           top: 0,
           width: '700px',
           height: '100vh',
-          backgroundColor: isDarkMode ? '#020817F2' : '#FFFFFF', // Background based on theme
-          color: isDarkMode ? 'white' : 'black', // Text color based on theme
+          backgroundColor: isDarkMode ? '#020817F2' : '#FFFFFF', 
+          color: isDarkMode ? 'white' : 'black', 
           padding: '20px',
           boxShadow: '-5px 0 15px rgba(0, 0, 0, 0.2)',
           zIndex: 1000,
           transform: isVisible ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 0.3s ease-in-out',
+          border: '1px solid #1E293B',
         }}
       >
-        <h2>{nodeData ? nodeData?.data?.label : 'No Data'} Details</h2>
+
+        <div className="px-2 py-3 text-center w-fit">
+          <span className="inline-block w-36 h-7 bg-[#3B82F61A] text-[#4E7AFF] text-lg rounded-lg whitespace-normal ml-3"> Quick Sprint #1 </span>
+        </div>
+        <h2 className='text-3xl font-bold ml-4'>{nodeData ? nodeData?.data?.label : 'No Data'} </h2>
+        <p className='text-[#94A3B8] ml-4'>Arrays store elements in a fixed-size sequence, allowing fast access and manipulation through indexing.</p>
 
         <button
           onClick={onClose}
@@ -65,16 +72,17 @@ const SlidingTable: React.FC<SlidingTableProps> = ({ isVisible, nodeData, onClos
             position: 'absolute',
             top: '10px',
             right: '10px',
-            backgroundColor: '#F87171',
+            backgroundColor: isDarkMode ? '#020817F2' : '#FFFFFF',
             border: 'none',
             padding: '5px 10px',
             cursor: 'pointer',
+            fontSize: '1.2rem',
           }}
         >
-          Close
+          x
         </button>
 
-        <div className="mt-6">
+        <div className="mt-6 ml-4 mr-4">
           <div className="border-2 rounded-md overflow-hidden dark:bg-background">
             <div className="flex bg-muted font-bold">
               <div className="px-2 py-2 flex-1">Name</div>
@@ -86,21 +94,21 @@ const SlidingTable: React.FC<SlidingTableProps> = ({ isVisible, nodeData, onClos
               <div className="flex hover:bg-muted/50 duration-300 border-b">
                 <div className="px-2 py-2 flex-1 font-medium capitalize">Problem One</div>
                 <div className="px-2 py-2 text-center w-[100px]">
-                  <span className="inline-block bg-green-500 text-white text-sm font-semibold rounded-full px-2 py-1">easy</span>
+                  <span className="inline-block bg-[#22C55E1A] text-[#3D9C5C] text-md rounded-full px-2 py-1">Easy</span>
                 </div>
                 <div className="px-2 py-2 text-center w-[100px]">-</div>
               </div>
               <div className="flex hover:bg-muted/50 duration-300 border-b">
                 <div className="px-2 py-2 flex-1 font-medium capitalize">Problem Two</div>
                 <div className="px-2 py-2 text-center w-[100px]">
-                  <span className="inline-block bg-yellow-500 text-white text-sm font-semibold rounded-full px-2 py-1">medium</span>
+                  <span className="inline-block bg-[#EA580C1A] text-[#FB923C] text-md rounded-full px-2 py-1">Medium</span>
                 </div>
                 <div className="px-2 py-2 text-center w-[100px]">-</div>
               </div>
               <div className="flex hover:bg-muted/50 duration-300 border-b">
                 <div className="px-2 py-2 flex-1 font-medium capitalize">Problem Three</div>
                 <div className="px-2 py-2 text-center w-[100px]">
-                  <span className="inline-block bg-red-500 text-white text-sm font-semibold rounded-full px-2 py-1">hard</span>
+                  <span className="inline-block bg-[#DC26261A] text-[#DD503F] text-md rounded-full px-2 py-1">Hard</span>
                 </div>
                 <div className="px-2 py-2 text-center w-[100px]">-</div>
               </div>

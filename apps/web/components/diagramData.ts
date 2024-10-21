@@ -1,16 +1,16 @@
 export const quickSprintNodes = [
     { id: '1', position: { x: 70, y: 0 }, data: { label: 'Quick Sprint' }, sourcePosition: 'bottom', style: { opacity: 0 } }, // Title node
-    { id: '2', position: { x: 100, y: 100 }, data: { label: 'Quick Sprint', type: 'text' }, sourcePosition: 'bottom', targetPosition: 'top' }, // First vertical node
-    { id: '3', position: { x: 250, y: 200 }, data: { label: 'Array' }, sourcePosition: 'right', targetPosition: 'left' }, // First horizontal
-    { id: '4', position: { x: 450, y: 200 }, data: { label: 'String' }, sourcePosition: 'right', targetPosition: 'left' }, // First horizontal
-    { id: '5', position: { x: 650, y: 200 }, data: { label: 'LinkedList' }, sourcePosition: 'right', targetPosition: 'left' }, // First horizontal
+    { id: '2', position: { x: 93, y: 100 }, data: { label: 'Quick Sprint', type: 'text' }, sourcePosition: 'bottom', targetPosition: 'top', style: {border: 'none', background: 'var(--bg-color, #FFFFFF, #020817)',width: 'fit-content', fontSize: '15px', color: 'var(--Content-Secondary, #fffff)'} }, // First vertical node
+    { id: '3', position: { x: 250, y: 200 }, data: { label: 'Array' }, sourcePosition: 'right', targetPosition: 'left', style: {border: '2px solid #3D9C5C', padding: '10px', background: 'var(--bg-color, #FFFFFF, #020817)', borderRadius: '4px', width: 'fit-content'} }, // First horizontal
+    { id: '4', position: { x: 420, y: 200 }, data: { label: 'String' }, sourcePosition: 'right', targetPosition: 'left', style: {border: '2px solid #3D9C5C', padding: '10px', background: 'var(--bg-color, #FFFFFF, #020817)', borderRadius: '4px', width: 'fit-content'} }, // First horizontal
+    { id: '5', position: { x: 620, y: 200 }, data: { label: 'LinkedList' }, sourcePosition: 'right', targetPosition: 'left' }, // First horizontal
 
     // Zigzag node between String and LinkedList
-    { id: 'zigzag-box', position: { x: 500, y: 300 }, data: { label: 'Zigzag Text Box' }, sourcePosition: 'top', style: { color: 'var(--Content-Secondary, #94A3B8)', backgroundColor: 'var(--bg-color, #FFFFFF, #020817)', border: 'dashed 2px #1E293B' } },
+    { id: 'zigzag-box', position: { x: 480, y: 300 }, data: { label: 'Zigzag Text Box' }, sourcePosition: 'top', style: { color: 'var(--Content-Secondary, #94A3B8)', backgroundColor: 'var(--bg-color, #FFFFFF, #020817)', border: 'dashed 2px #1E293B' } },
 
 
 
-    { id: '6', position: { x: 650, y: 400 }, data: { label: 'Stack' }, sourcePosition: 'left', targetPosition: 'right' },
+    { id: '6', position: { x: 670, y: 400 }, data: { label: 'Stack' }, sourcePosition: 'left', targetPosition: 'right' },
     { id: '7', position: { x: 450, y: 400 }, data: { label: 'Queues' }, sourcePosition: 'left', targetPosition: 'right' },
 
     // New zigzag node between Queues and Hashing
@@ -31,9 +31,9 @@ export const quickSprintNodes = [
     { id: '15', position: { x: 450, y: 1200 }, data: { label: 'Greedy Algorithm' }, sourcePosition: 'left', targetPosition: 'right' },
 
     // New zigzag node after Greedy Algorithm
-    { id: 'zigzag-box-greedy', position: { x: 280, y: 1120 }, data: { label: 'Zigzag Text Box' }, targetPosition: 'bottom', style: { color: 'var(--Content-Secondary, #94A3B8)', backgroundColor: 'var(--bg-color, #FFFFFF, #020817)', border: 'dashed 2px #1E293B' } },
+    { id: 'zigzag-box-greedy', position: { x: 300, y: 1120 }, data: { label: 'Zigzag Text Box' }, targetPosition: 'bottom', style: { color: 'var(--Content-Secondary, #94A3B8)', backgroundColor: 'var(--bg-color, #FFFFFF, #020817)', border: 'dashed 2px #1E293B' } },
 
-    { id: '16', position: { x: 250, y: 1350 }, data: { label: 'Finished', type: 'text' }, sourcePosition: 'top', targetPosition: 'top' }, // This is the text node
+    { id: '16', position: { x: 250, y: 1350 }, data: { label: 'Finished', type: 'text' }, sourcePosition: 'top',  style: {border: 'none', background: 'var(--bg-color, #FFFFFF, #020817)',width: 'fit-content', fontSize: '15px', color: 'var(--Content-Secondary, #fffff)' }}, // This is the text node
 ];
 
 
@@ -48,6 +48,9 @@ export const quickSprintEdges = [
 
     // Edge from zigzag box to LinkedList
     { id: 'e-zigzag-box-5', source: 'zigzag-box', target: '5', type: 'smoothstep', animated: true, style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { width: 12, height: 12 } },
+    { id: 'e-zigzag-box-queue-hashing-8', source: 'zigzag-box-queue-hashing', target: '8', type: 'smoothstep', animated: true, style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { width: 12, height: 12 } },
+    { id: 'e-zigzag-box-sorting-binary-10', source: 'zigzag-box-sorting-binary', target: '10', type: 'smoothstep', animated: true, style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { width: 12, height: 12 } },
+    { id: 'e-zigzag-box-greedy-15', source: 'zigzag-box-greedy', target: '15', type: 'smoothstep', animated: true, style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { width: 12, height: 12 } },
     
 
     { id: 'e5-6', source: '5', target: '6', type: 'smoothstep', style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { type: 'arrow', width: 12, height: 12 } },
@@ -67,10 +70,10 @@ export const quickSprintEdges = [
 
 // Balance Route Diagram
 export const balanceRouteNodes = [
-    { id: '1', position: { x: 77, y: 0 }, data: { label: 'Quick Sprint' }, sourcePosition: 'bottom', style: { opacity: 0 } }, // Title node
-    { id: '2', position: { x: 100, y: 100 }, data: { label: 'Balance Route', type: 'text' }, sourcePosition: 'bottom', targetPosition: 'top' }, // First vertical node
-    { id: '3', position: { x: 250, y: 200 }, data: { label: 'Array' }, sourcePosition: 'right', targetPosition: 'left' }, // First horizontal
-    { id: '4', position: { x: 450, y: 200 }, data: { label: 'String' }, sourcePosition: 'right', targetPosition: 'left' }, // First horizontal
+    { id: '1', position: { x: 70, y: 0 }, data: { label: 'Quick Sprint' }, sourcePosition: 'bottom', style: { opacity: 0 } }, // Title node
+    { id: '2', position: { x: 86, y: 100 }, data: { label: 'Balance Route', type: 'text' }, sourcePosition: 'bottom', targetPosition: 'top', style: {border: 'none', background: 'var(--bg-color, #FFFFFF, #020817)',width: 'fit-content', fontSize: '15px', color: 'var(--Content-Secondary, #fffff)'} }, // First vertical node
+    { id: '3', position: { x: 250, y: 200 }, data: { label: 'Array' }, sourcePosition: 'right', targetPosition: 'left', style: {border: '2px solid #3D9C5C', padding: '10px', background: 'var(--bg-color, #FFFFFF, #020817)', borderRadius: '4px', width: 'fit-content'} }, // First horizontal
+    { id: '4', position: { x: 450, y: 200 }, data: { label: 'String' }, sourcePosition: 'right', targetPosition: 'left', style: {border: '2px solid #3D9C5C', padding: '10px', background: 'var(--bg-color, #FFFFFF, #020817)', borderRadius: '4px', width: 'fit-content'} }, // First horizontal
     { id: '5', position: { x: 650, y: 200 }, data: { label: 'LinkedList' }, sourcePosition: 'right', targetPosition: 'left' }, // First horizontal
 
     // Zigzag node between String and LinkedList
@@ -99,9 +102,9 @@ export const balanceRouteNodes = [
     { id: '15', position: { x: 450, y: 1200 }, data: { label: 'Greedy Algorithm' }, sourcePosition: 'left', targetPosition: 'right' },
 
     // New zigzag node after Greedy Algorithm
-    { id: 'zigzag-box-greedy', position: { x: 280, y: 1120 }, data: { label: 'Zigzag Text Box' }, targetPosition: 'bottom', style: { color: 'var(--Content-Secondary, #94A3B8)', backgroundColor: 'var(--bg-color, #FFFFFF, #020817)', border: 'dashed 2px #1E293B' } },
+    { id: 'zigzag-box-greedy', position: { x: 300, y: 1120 }, data: { label: 'Zigzag Text Box' }, targetPosition: 'bottom', style: { color: 'var(--Content-Secondary, #94A3B8)', backgroundColor: 'var(--bg-color, #FFFFFF, #020817)', border: 'dashed 2px #1E293B' } },
 
-    { id: '16', position: { x: 250, y: 1350 }, data: { label: 'Finished', type: 'text' }, sourcePosition: 'top', targetPosition: 'top' }, // This is the text node
+    { id: '16', position: { x: 250, y: 1350 }, data: { label: 'Finished', type: 'text' }, sourcePosition: 'top',  style: {border: 'none', background: 'var(--bg-color, #FFFFFF, #020817)',width: 'fit-content', fontSize: '15px', color: 'var(--Content-Secondary, #fffff)' }},
 
 ];
 
@@ -114,6 +117,9 @@ export const balanceRouteEdges = [
 
     // Edge from zigzag box to LinkedList
     { id: 'e-zigzag-box-5', source: 'zigzag-box', target: '5', type: 'smoothstep', animated: true, style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { width: 12, height: 12 } },
+    { id: 'e-zigzag-box-queue-hashing-8', source: 'zigzag-box-queue-hashing', target: '8', type: 'smoothstep', animated: true, style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { width: 12, height: 12 } },
+    { id: 'e-zigzag-box-sorting-binary-10', source: 'zigzag-box-sorting-binary', target: '10', type: 'smoothstep', animated: true, style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { width: 12, height: 12 } },
+    { id: 'e-zigzag-box-greedy-15', source: 'zigzag-box-greedy', target: '15', type: 'smoothstep', animated: true, style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { width: 12, height: 12 } },
     
 
     { id: 'e5-6', source: '5', target: '6', type: 'smoothstep', style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { type: 'arrow', width: 12, height: 12 } },
@@ -132,10 +138,10 @@ export const balanceRouteEdges = [
 
 // In-Depth JouIn-Depth Journey
 export const inDepthJourneyNodes = [
-    { id: '1', position: { x: 84, y: 0 }, data: { label: 'Quick Sprint' }, sourcePosition: 'bottom', style: { opacity: 0 } }, // Title node
-    { id: '2', position: { x: 100, y: 100 }, data: { label: 'In-Depth Journey', type: 'text' }, sourcePosition: 'bottom', targetPosition: 'top' }, // First vertical node
-    { id: '3', position: { x: 250, y: 200 }, data: { label: 'Array' }, sourcePosition: 'right', targetPosition: 'left' }, // First horizontal
-    { id: '4', position: { x: 450, y: 200 }, data: { label: 'String' }, sourcePosition: 'right', targetPosition: 'left' }, // First horizontal
+    { id: '1', position: { x: 70, y: 0 }, data: { label: 'Quick Sprint' }, sourcePosition: 'bottom', style: { opacity: 0 } }, // Title node
+    { id: '2', position: { x: 76, y: 100 }, data: { label: 'In-Depth Journey', type: 'text' }, sourcePosition: 'bottom', targetPosition: 'top', style: {border: 'none', background: 'var(--bg-color, #FFFFFF, #020817)',width: 'fit-content', fontSize: '15px', color: 'var(--Content-Secondary, #fffff)'} }, // First vertical node
+    { id: '3', position: { x: 250, y: 200 }, data: { label: 'Array' }, sourcePosition: 'right', targetPosition: 'left', style: {border: '2px solid #3D9C5C', padding: '10px', background: 'var(--bg-color, #FFFFFF, #020817)', borderRadius: '4px', width: 'fit-content'} }, // First horizontal
+    { id: '4', position: { x: 450, y: 200 }, data: { label: 'String' }, sourcePosition: 'right', targetPosition: 'left', style: {border: '2px solid #3D9C5C', padding: '10px', background: 'var(--bg-color, #FFFFFF, #020817)', borderRadius: '4px', width: 'fit-content'} }, // First horizontal
     { id: '5', position: { x: 650, y: 200 }, data: { label: 'LinkedList' }, sourcePosition: 'right', targetPosition: 'left' }, // First horizontal
 
     // Zigzag node between String and LinkedList
@@ -164,9 +170,9 @@ export const inDepthJourneyNodes = [
     { id: '15', position: { x: 450, y: 1200 }, data: { label: 'Greedy Algorithm' }, sourcePosition: 'left', targetPosition: 'right' },
 
     // New zigzag node after Greedy Algorithm
-    { id: 'zigzag-box-greedy', position: { x: 280, y: 1120 }, data: { label: 'Zigzag Text Box' }, targetPosition: 'bottom', style: { color: 'var(--Content-Secondary, #94A3B8)', backgroundColor: 'var(--bg-color, #FFFFFF, #020817)', border: 'dashed 2px #1E293B' } },
+    { id: 'zigzag-box-greedy', position: { x: 300, y: 1120 }, data: { label: 'Zigzag Text Box' }, targetPosition: 'bottom', style: { color: 'var(--Content-Secondary, #94A3B8)', backgroundColor: 'var(--bg-color, #FFFFFF, #020817)', border: 'dashed 2px #1E293B' } },
 
-    { id: '16', position: { x: 250, y: 1350 }, data: { label: 'Finished', type: 'text' }, sourcePosition: 'top', targetPosition: 'top' }, // This is the text node
+    { id: '16', position: { x: 250, y: 1350 }, data: { label: 'Finished', type: 'text' }, sourcePosition: 'top',  style: {border: 'none', background: 'var(--bg-color, #FFFFFF, #020817)',width: 'fit-content', fontSize: '15px', color: 'var(--Content-Secondary, #fffff)' }},
 ];
 
 export const inDepthJourneyEdges = [
@@ -178,6 +184,9 @@ export const inDepthJourneyEdges = [
 
     // Edge from zigzag box to LinkedList
     { id: 'e-zigzag-box-5', source: 'zigzag-box', target: '5', type: 'smoothstep', animated: true, style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { width: 12, height: 12 } },
+    { id: 'e-zigzag-box-queue-hashing-8', source: 'zigzag-box-queue-hashing', target: '8', type: 'smoothstep', animated: true, style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { width: 12, height: 12 } },
+    { id: 'e-zigzag-box-sorting-binary-10', source: 'zigzag-box-sorting-binary', target: '10', type: 'smoothstep', animated: true, style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { width: 12, height: 12 } },
+    { id: 'e-zigzag-box-greedy-15', source: 'zigzag-box-greedy', target: '15', type: 'smoothstep', animated: true, style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { width: 12, height: 12 } },
     
 
     { id: 'e5-6', source: '5', target: '6', type: 'smoothstep', style: { stroke: '#4E7AFF', strokeWidth: 2 }, markerEnd: { type: 'arrow', width: 12, height: 12 } },
