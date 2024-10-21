@@ -2,8 +2,8 @@ import { PrismaClient } from "@prisma/client";
 import { ProblemDefinitionParser } from "./ProblemDefinitionGenerator";
 import { FullProblemDefinitionParser } from "./FullProblemDefinitionGenerator";
 import { LANGUAGE_MAPPING } from "../../../packages/common/language/index";
-
-
+const fs = require('fs').promises;
+const path = require('path');
 
 const prisma = new PrismaClient();
 
@@ -61,6 +61,65 @@ export async function createProblem(problemData: {
     { language: 'rs', code: partialParser.generateRust(), fullcode: fullParser.generateRust() },
     { language: 'Java', code: partialParser.generateJava(), fullcode: fullParser.generateJava() },
   ];
+  const createInput = async (testCases: Array<{ input: any; output: any }>,problemName: string) => {
+    const root='../problems'
+    const inputFolder = '/tests/inputs'; 
+    problemName=problemName.toLowerCase().replace(" ", "-");
+    const folderName = path.join(root,problemName, inputFolder);
+    try {
+      await fs.mkdir(folderName, { recursive: true });
+      console.log(`Folder ${folderName} has been created or already exists.`);
+    } catch (error) {
+      console.error(`Error creating folder: ${error}`);
+      return;
+    }
+  
+    const inputArray = testCases.map(testCase => testCase.input);
+  
+    // Use for...of to handle async/await properly
+    for (let [index, input] of inputArray.entries()) {
+      const formattedInput = formatTestCaseInput(input);
+      const filePath = path.join(folderName, `${index}.txt`);
+  
+      try {
+        await fs.writeFile(filePath, formattedInput, 'utf8');
+        console.log(`File ${filePath} has been created successfully.`);
+      } catch (error) {
+        console.error(`Error creating file ${filePath}: ${error}`);
+      }
+    }
+  };
+  const createOutput = async (testCases: Array<{ input: any; output: any }>, problemName: string) => {
+    const root='../problems'
+    const outputFolder = '/tests/outputs'; 
+    problemName=problemName.toLowerCase().replace(" ", "-");
+    const folderName = path.join(root,problemName, outputFolder);
+    try {
+      await fs.mkdir(folderName, { recursive: true });
+      console.log(`Folder ${folderName} has been created or already exists.`);
+    } catch (error) {
+      console.error(`Error creating folder: ${error}`);
+      return;
+    }
+  
+    const outputArray = testCases.map(testCase => testCase.output);
+  
+    // Use for...of to handle async/await properly
+    for (let [index, output] of outputArray.entries()) {
+      const formattedInput = formatTestCaseInput(output);
+      const filePath = path.join(folderName, `${index}.txt`);
+  
+      try {
+        await fs.writeFile(filePath, formattedInput, 'utf8');
+        console.log(`File ${filePath} has been created successfully.`);
+      } catch (error) {
+        console.error(`Error creating file ${filePath}: ${error}`);
+      }
+    }
+  };
+  function formatTestCaseInput(input: any) {
+    return input.map((item: String[]) => Array.isArray(item) ? item.join(' ') : item).join('\n');
+  }
 
   try {
     // Generate Slug
@@ -75,12 +134,12 @@ export async function createProblem(problemData: {
         problemMarkdown: problemMarkdown,
         difficulty: difficulty,
         slug: slug,
-        testCases: {
-          create: testCases.map((tc) => ({
-            input: tc.input,
-            output: tc.output,
-          })),
-        },
+        // testCases: {
+        //   create: testCases.map((tc) => ({
+        //     input: tc.input,
+        //     output: tc.output,
+        //   })),
+        // },
         defaultCode: {
           create: boilerplateCodes.map((bc) => {
             const languageMapping = LANGUAGE_MAPPING[bc.language.toLowerCase()];
@@ -102,6 +161,8 @@ export async function createProblem(problemData: {
     });
 
     console.log("Problem created successfully:", problem);
+    createInput(testCases,problemName);
+    createOutput(testCases, problemName);
     return problem;
   } catch (error) {
     console.error("Error creating problem:", error);

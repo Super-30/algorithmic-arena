@@ -87,6 +87,14 @@ export class ProblemDefinitionParser {
         return "std::vector<std::string>";
       case "list<bool>":
         return "std::vector<bool>";
+      case "list<list<int>>":
+        return "std::vector<std::vector<int>>";
+      case "list<list<float>>":
+        return "std::vector<std::vector<float>>";
+      case "list<list<string>>":
+        return "std::vector<std::vector<std::string>>";
+      case "list<list<bool>>":
+        return "std::vector<std::vector<bool>>";
       default:
         return "unknown";
     }

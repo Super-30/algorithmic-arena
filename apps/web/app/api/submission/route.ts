@@ -86,7 +86,8 @@ const CLOUDFLARE_TURNSTILE_URL =
           id: submissionInput.data.problemId,
         },
       });
-  
+      console.log('this is db Problem',dbProblem);
+      
       if (!dbProblem) {
         return NextResponse.json(
           {
@@ -101,7 +102,8 @@ const CLOUDFLARE_TURNSTILE_URL =
       // Fetch problem details
       const problem = await getProblem(
         dbProblem.id,
-        submissionInput.data.languageId
+        submissionInput.data.languageId,
+        dbProblem.title
       );
       if (!problem) {
         return NextResponse.json(
@@ -120,6 +122,15 @@ const CLOUDFLARE_TURNSTILE_URL =
         submissionInput.data.code
       );
       const res: any=problem.inputs
+      const submissionCode=problem.inputs.map((input, index) => ({
+        language_id: LANGUAGE_MAPPING[submissionInput.data.languageId]?.judge0,
+        source_code: problem.fullBoilerplateCode.replace(
+          "##INPUT_FILE_INDEX##",
+          index.toString()
+        ),
+        expected_output: problem.outputs[index],
+      }))
+      
       // Submit to Judge0
       const response = await axios.post(
         `${JUDGE0_URI}/submissions/batch?base64_encoded=false`,
