@@ -54,6 +54,7 @@ model Problem {
   id                 String              @id @default(cuid())
   title              String
   description        String
+  problemMarkdown    String // Stores the content of Problem.md
   hidden             Boolean             @default(true)
   slug               String              @unique
   solved             Int                 @default(0)
@@ -64,6 +65,15 @@ model Problem {
   contests           ContestProblem[]
   submissions        Submission[]
   defaultCode        DefaultCode[]
+  testCases          TestCase[] //added testcases
+}
+
+model TestCase {
+  id        String   @id @default(cuid())
+  input     String[]
+  output    String[]
+  problem   Problem  @relation(fields: [problemId], references: [id])
+  problemId String
 }
 
 model DefaultCode {
@@ -71,6 +81,7 @@ model DefaultCode {
   languageId Int
   problemId  String
   code       String
+  fullcode   String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   problem    Problem  @relation(fields: [problemId], references: [id])
