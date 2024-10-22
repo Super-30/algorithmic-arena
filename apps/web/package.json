@@ -17,6 +17,7 @@
     "@repo/db": "workspace:*",
     "@repo/ui": "workspace:*",
     "@types/bcrypt": "^5.0.2",
+    "@uiw/react-md-editor": "^4.0.4",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.0",

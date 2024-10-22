@@ -1,125 +1,119 @@
-import fs from "fs";
-import path from "path";
+import { PrismaClient, BoilerplateType } from "@prisma/client";
 import { ProblemDefinitionParser } from "./ProblemDefinitionGenerator";
 import { FullProblemDefinitionParser } from "./FullProblemDefinitionGenerator";
-import dotenv from 'dotenv'
-dotenv.config()
+import * as dotenv from 'dotenv';
 
-function generatePartialBoilerplate(generatorFilePath: string) {
-  const inputFilePath = path.join(generatorFilePath, "Structure.md");
-  const boilerplatePath = path.join(
-    generatorFilePath,
-    "boilerplate",
-  );
+dotenv.config();
 
-  // Read the input file
-  const input = fs.readFileSync(inputFilePath, "utf-8");
+const prisma = new PrismaClient();
 
-  // Parse the input
-  const parser = new ProblemDefinitionParser();
-  parser.parse(input);
-
-  // Generate the boilerplate code
-  const cppCode = parser.generateCpp();
-  const jsCode = parser.generateJs();
-  const rustCode = parser.generateRust();
-  const javaCode = parser.generateJava();
-
-  // Ensure the boilerplate directory exists
-  if (!fs.existsSync(boilerplatePath)) {
-    fs.mkdirSync(boilerplatePath, { recursive: true });
-  }
-
-  // Write the boilerplate code to respective files
-  fs.writeFileSync(path.join(boilerplatePath, "function.cpp"), cppCode);
-  fs.writeFileSync(path.join(boilerplatePath, "function.js"), jsCode);
-  fs.writeFileSync(path.join(boilerplatePath, "function.rs"), rustCode);
-  fs.writeFileSync(path.join(boilerplatePath, "function.java"), javaCode);
-
-  console.log("Boilerplate code generated successfully!");
+/**
+ * Function to generate a slug from the problem name.
+ * @param title - The title of the problem.
+ * @returns A URL-friendly slug string.
+ */
+function generateSlug(title: string): string {
+  return title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
 }
 
-function generateFullBoilerPLate(generatorFilePath: string) {
-  const inputFilePath = path.join(generatorFilePath, "Structure.md");
-  const boilerplatePath = path.join(
-    generatorFilePath,
-    "boilerplate-full",
-  );
+/**
+ * Function to create a new problem in the database.
+ * @param problemData - An object containing all necessary problem details, including metadata.
+ * @returns The created problem record from the database.
+ */
+export async function createProblem(problemData: {
+  problemName: string;
+  problemDescription: string;
+  problemMarkdown: string;
+  structureMarkdown: string; // Content of Structure.md
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+  testCases: Array<{ input: any; output: any }>;
+  functionName: string; // Provided by the user
+  inputFields: Array<{ type: string; name: string }>; // Provided by the user
+  outputFields: Array<{ type: string; name: string }>; // Provided by the user
+}) {
+  const {
+    problemName,
+    problemDescription,
+    problemMarkdown,
+    structureMarkdown,
+    difficulty,
+    testCases,
+    functionName,
+    inputFields,
+    outputFields,
+  } = problemData;
+  console.log('Extracted values:', { problemName, functionName, inputFields, outputFields });
 
-  // Read the input file
-  const input = fs.readFileSync(inputFilePath, "utf-8");
-
-  // Parse the input
-  const parser = new FullProblemDefinitionParser();
-  parser.parse(input);
-
-  // Generate the boilerplate code
-  const cppCode = parser.generateCpp();
-  const jsCode = parser.generateJs();
-  const rustCode = parser.generateRust();
-  const javaCode = parser.generateJava();
-
-  // Ensure the boilerplate directory exists
-  if (!fs.existsSync(boilerplatePath)) {
-    fs.mkdirSync(boilerplatePath, { recursive: true });
-  }
-
-  // Write the boilerplate code to respective files
-  fs.writeFileSync(path.join(boilerplatePath, "function.cpp"), cppCode);
-  fs.writeFileSync(path.join(boilerplatePath, "function.js"), jsCode);
-  fs.writeFileSync(path.join(boilerplatePath, "function.rs"), rustCode);
-  fs.writeFileSync(path.join(boilerplatePath, "function.java"), javaCode);
-
-  console.log("Boilerplate code generated successfully!");
-}
-
-const getFolders = (dir: string) => {
-  return new Promise((resolve, reject) => {
-    fs.readdir(dir, (err, files) => {
-      if (err) {
-        return reject(err);
-      }
-
-      const folders: string[] = [];
-      let pending = files.length;
-
-      if (!pending) return resolve(folders);
-
-      files.forEach(file => {
-        const filePath = path.join(dir, file);
-        fs.stat(filePath, (err, stats) => {
-          if (err) {
-            return reject(err);
-          }
-
-          if (stats.isDirectory()) {
-            folders.push(file);
-          }
-
-          if (!--pending) {
-            resolve(folders);
-          }
-        });
-      });
-    });
+  // Initialize parsers with user-provided metadata
+  const partialParser = new ProblemDefinitionParser({
+    problemName: problemName,
+    functionName: functionName,
+    inputFields: inputFields,   // Passed directly from user input
+    outputFields: outputFields, // Passed directly from user input
   });
-};
-function main() {
-  fs.readdir(process.env.PROBLEMS_DIR_PATH || "", (err, files) => {
-    files.forEach(file => {
-      if (file)
-        generatePartialBoilerplate(path.join(process.env.PROBLEMS_DIR_PATH || "", file));
-      generateFullBoilerPLate(path.join(process.env.PROBLEMS_DIR_PATH || "", file));
-    })
-  })
-}
-if (!process.env.PROBLEMS_DIR_PATH) {
-  console.log("Store a valid problems dir path in .env", process.env.PROBLEMS_DIR_PATH);
-} else {
-  getFolders(process.env.PROBLEMS_DIR_PATH).then((folders: any) => {
-    folders.forEach((folder: string) => {
-      generatePartialBoilerplate(path.join(process.env.PROBLEMS_DIR_PATH || "", folder));
-      generateFullBoilerPLate(path.join(process.env.PROBLEMS_DIR_PATH || "", folder));
+
+  const fullParser = new FullProblemDefinitionParser({
+    problemName: problemName,
+    functionName: functionName,
+    inputFields: inputFields,   // Passed directly from user input
+    outputFields: outputFields, // Passed directly from user input
+  });
+
+
+
+  // Generate boilerplate codes
+  const boilerplateCodes = [
+    { language: 'C++', code: partialParser.generateCpp(), boilerplateType: 'PARTIAL' as BoilerplateType },
+    { language: 'JavaScript', code: partialParser.generateJs(), boilerplateType: 'PARTIAL' as BoilerplateType },
+    { language: 'Rust', code: partialParser.generateRust(), boilerplateType: 'PARTIAL' as BoilerplateType },
+    { language: 'Java', code: partialParser.generateJava(), boilerplateType: 'PARTIAL' as BoilerplateType },
+    // Full Boilerplate
+    { language: 'C++', code: fullParser.generateCpp(), boilerplateType: 'FULL' as BoilerplateType },
+    { language: 'JavaScript', code: fullParser.generateJs(), boilerplateType: 'FULL' as BoilerplateType },
+    { language: 'Rust', code: fullParser.generateRust(), boilerplateType: 'FULL' as BoilerplateType },
+    { language: 'Java', code: fullParser.generateJava(), boilerplateType: 'FULL' as BoilerplateType },
+  ];
+
+  try {
+    // Generate Slug
+    const slug = generateSlug(problemName);
+
+    // Create the Problem
+    const problem = await prisma.problem.create({
+      data: {
+        title: problemName,
+        description: problemDescription,
+        problemMarkdown: problemMarkdown,
+        structureMarkdown: structureMarkdown,
+        difficulty: difficulty,
+        slug: slug,
+        testCases: {
+          create: testCases.map((tc) => ({
+            input: tc.input,
+            output: tc.output,
+          })),
+        },
+        boilerplateCodes: {
+          create: boilerplateCodes.map((bc) => ({
+            language: bc.language,
+            code: bc.code,
+            boilerplateType: bc.boilerplateType,
+          })),
+        },
+      },
+      include: {
+        testCases: true,
+        boilerplateCodes: true,
+      },
     });
-  })
+
+    console.log("Problem created successfully:", problem);
+    return problem;
+  } catch (error) {
+    console.error("Error creating problem:", error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
 }

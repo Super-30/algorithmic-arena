@@ -1,49 +1,21 @@
+interface ProblemMetadata {
+  problemName: string;
+  functionName: string;
+  inputFields: { type: string; name: string }[];
+  outputFields: { type: string; name: string }[];
+}
+
 export class FullProblemDefinitionParser {
   problemName: string = "";
   functionName: string = "";
   inputFields: { type: string; name: string }[] = [];
   outputFields: { type: string; name: string }[] = [];
 
-  parse(input: string): void {
-    const lines = input.split("\n").map((line) => line.trim());
-    let currentSection: string | null = null;
-
-    lines.forEach((line) => {
-      if (line.startsWith("Problem Name:")) {
-        this.problemName = this.extractQuotedValue(line);
-      } else if (line.startsWith("Function Name:")) {
-        this.functionName = this.extractValue(line);
-      } else if (line.startsWith("Input Structure:")) {
-        currentSection = "input";
-      } else if (line.startsWith("Output Structure:")) {
-        currentSection = "output";
-      } else if (line.startsWith("Input Field:")) {
-        if (currentSection === "input") {
-          const field = this.extractField(line);
-          if (field) this.inputFields.push(field);
-        }
-      } else if (line.startsWith("Output Field:")) {
-        if (currentSection === "output") {
-          const field = this.extractField(line);
-          if (field) this.outputFields.push(field);
-        }
-      }
-    });
-  }
-
-  extractQuotedValue(line: string): string {
-    const match = line.match(/: "(.*)"$/);
-    return match ? match[1] : "";
-  }
-
-  extractValue(line: string): string {
-    const match = line.match(/: (\w+)$/);
-    return match ? match[1] : "";
-  }
-
-  extractField(line: string): { type: string; name: string } | null {
-    const match = line.match(/Field: (\w+(?:<\w+>)?) (\w+)$/);
-    return match ? { type: match[1], name: match[2] } : null;
+  constructor(metadata: ProblemMetadata) {
+    this.problemName = metadata.problemName;
+    this.functionName = metadata.functionName;
+    this.inputFields = metadata.inputFields;
+    this.outputFields = metadata.outputFields;
   }
 
   generateCpp(): string {
@@ -90,36 +62,35 @@ int main() {
   generateJava(): string {
     let inputReadIndex = 0;
     const inputReads = this.inputFields
-    .map((field , index)=>{
-      if(field.type.startsWith("list<")){
-        let javaType = this.mapTypeToJava(field.type);
-        let inputType = javaType.match(/<(.*?)>/);
-        javaType = inputType ? inputType[1] : 'Integer';
-        let parseToType = (javaType === 'Integer') ? 'Int' : javaType;
+      .map((field, index) => {
+        if (field.type.startsWith("list<")) {
+          let javaType = this.mapTypeToJava(field.type);
+          let inputType = javaType.match(/<(.*?)>/);
+          javaType = inputType ? inputType[1] : "Integer";
+          let parseToType = javaType === "Integer" ? "Int" : javaType;
 
-        return `int size_${field.name} = Integer.parseInt(lines.get(${inputReadIndex++}).trim());\n
+          return `int size_${field.name} = Integer.parseInt(lines.get(${inputReadIndex++}).trim());\n
         ${this.mapTypeToJava(field.type)} ${field.name} = new ArrayList<>(size_${field.name});\n
         String[] inputStream = lines.get(${inputReadIndex++}).trim().split("\\s+");\n
         for (String inputChar : inputStream)  {\n
           ${field.name}.add(${javaType}.parse${parseToType}(inputChar));\n
         }\n`;
-      } else {
-        let javaType = this.mapTypeToJava(field.type);
-        if(javaType === 'int'){
-          javaType = 'Integer';
+        } else {
+          let javaType = this.mapTypeToJava(field.type);
+          if (javaType === "int") {
+            javaType = "Integer";
+          } else if (javaType === "float") {
+            javaType = "Float";
+          } else if (javaType === "boolean") {
+            javaType = "Boolean";
+          } else if (javaType === "String") {
+            javaType = "String";
+          }
+          let parseToType = javaType === "Integer" ? "Int" : javaType;
+          return `${this.mapTypeToJava(field.type)} ${field.name} = ${javaType}.parse${parseToType}(lines.get(${inputReadIndex++}).trim());`;
         }
-        else if(javaType === 'float'){
-          javaType = 'Float';
-        }
-        else if(javaType === 'boolean'){
-          javaType = 'Boolean';
-        }else if(javaType === 'String'){
-          javaType = 'String';
-        }
-        let parseToType = (javaType === 'Integer') ? 'Int' : javaType;
-        return `${this.mapTypeToJava(field.type)} ${field.name} = ${javaType}.parse${parseToType}(lines.get(${inputReadIndex++}).trim());`;
-      }
-    }).join("\n  ");
+      })
+      .join("\n  ");
     const outputType = this.mapTypeToJava(this.outputFields[0].type);
     const functionCall = `${outputType} result = ${this.functionName}(${this.inputFields.map((field) => field.name).join(", ")});`;
     const outputWrite = `System.out.println(result);`;
@@ -151,7 +122,7 @@ public class Main {
         }
         return lines;
     }
-}`
+}`;
   }
 
   generateJs(): string {
@@ -212,8 +183,8 @@ fn main() -> io::Result<()> {
   ${outputWrite}
   Ok(())
 }${
-  containsVector
-    ? `\nfn parse_input(mut input: Lines, size_arr: usize) -> Vec<i32> {
+      containsVector
+        ? `\nfn parse_input(mut input: Lines, size_arr: usize) -> Vec<i32> {
     let arr: Vec<i32> = input
         .next()
         .unwrap_or_default()
@@ -227,8 +198,8 @@ fn main() -> io::Result<()> {
         arr
     }
 }`
-    : ""
-}
+        : ""
+    }
 `;
   }
 
@@ -277,7 +248,7 @@ fn main() -> io::Result<()> {
         return "unknown";
     }
   }
-  mapTypeToJava(type:string):string {
+  mapTypeToJava(type: string): string {
     switch (type) {
       case "int":
         return "int";

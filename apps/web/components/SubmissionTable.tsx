@@ -22,7 +22,7 @@ export interface ISubmission {
   fullCode: string;
   status: string;
   testcases: {
-    status: string;
+    status_id: number;
     index: number;
   }[];
 }
@@ -83,25 +83,25 @@ export function SubmissionTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-  {submissions.map((submission) => (
-    <TableRow key={submission.id}> 
-      <TableCell>{submission.id.substr(0, 8)}</TableCell>
-      <TableCell className={getColor(submission.status)}>
-        {getIcon(submission.status)}
-      </TableCell>
-      <TableCell>
-        {
-          submission.testcases.filter(
-            (testcase) => testcase.status === "AC",
-          ).length
-        }
-        /{submission.testcases.length}
-      </TableCell>
-      <TableCell>{submission.time}</TableCell>
-      <TableCell>{submission.memory}</TableCell>
-    </TableRow>
-  ))}
-</TableBody>
+          {submissions.map((submission) => (
+            <TableRow key={submission.id}>
+              <TableCell>{submission.id.substr(0, 8)}</TableCell>
+              <TableCell className={getColor(submission.status)}>
+                {getIcon(submission.status)}
+              </TableCell>
+              <TableCell>
+                {
+                  submission.testcases.filter(
+                    (testcase) => testcase.status === "AC"
+                  ).length
+                }
+                /{submission.testcases.length}
+              </TableCell>
+              <TableCell>{submission.time}</TableCell>
+              <TableCell>{submission.memory}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
       </Table>
     </div>
   );
