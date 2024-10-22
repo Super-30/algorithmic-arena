@@ -5,11 +5,11 @@ const ProgressBarWithStatus = () => {
   const statusText = 'Completed 5/50'; // You can adjust this text
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-md shadow-md mx-auto sm:mx-4 w-[calc(100%-2rem)] sm:w-auto max-w-[1216px]">
+    <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-[#F1F5F9] dark:bg-[#0F172A] border-[#E2E8F0] dark:border-[#1E293B] rounded-md shadow-md mx-auto w-[calc(100%-2rem)] sm:w-auto max-w-[1000px]">
       {/* Left Side - Progress Label and Percentage */}
       <div className="w-full sm:w-4/5 flex items-center space-x-2 text-left text-sm font-semibold">
         <span className="whitespace-nowrap">Progress</span>
-        <div className=" mx-4 relative min-w-[100px]">
+        <div className="mx-4 relative min-w-[100px]">
           <Line
             percent={percentComplete}
             strokeWidth={4}

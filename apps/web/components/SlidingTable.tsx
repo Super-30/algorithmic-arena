@@ -70,8 +70,8 @@ const SlidingTable: React.FC<SlidingTableProps> = ({ isVisible, nodeData, onClos
           onClick={onClose}
           style={{
             position: 'absolute',
-            top: '10px',
-            right: '10px',
+            top: '30px',
+            right: '30px',
             backgroundColor: isDarkMode ? '#020817F2' : '#FFFFFF',
             border: 'none',
             padding: '5px 10px',
@@ -79,7 +79,8 @@ const SlidingTable: React.FC<SlidingTableProps> = ({ isVisible, nodeData, onClos
             fontSize: '1.2rem',
           }}
         >
-          x
+          <img src="/cross.svg">
+          </img>
         </button>
 
         <div className="mt-6 ml-4 mr-4">
