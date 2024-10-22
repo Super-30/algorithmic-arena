@@ -16,7 +16,7 @@ export const getProblem = async (problemId: string, contestId?: string) => {
 
     const problem = await db.problem.findFirst({
       where: {
-        id: problemId,
+        title : problemId,
         contests: {
           some: {
             contestId: contestId,
@@ -32,7 +32,7 @@ export const getProblem = async (problemId: string, contestId?: string) => {
 
   const problem = await db.problem.findFirst({
     where: {
-      id: problemId,
+      title : problemId,
     },
     include: {
       defaultCode: true,

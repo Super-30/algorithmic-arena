@@ -1,0 +1,35 @@
+/* CreateProblemForm.module.css */
+.editor :global(.w-md-editor) {
+    background-color: rgb(15, 23, 42) !important;
+  }
+  
+  .editor :global(.w-md-editor-content) {
+    background-color: rgb(15, 23, 42) !important;
+  }
+  
+  /* This specifically targets the textarea where you type */
+  .editor :global(.w-md-editor-text-input) {
+    -webkit-text-fill-color: rgb(226, 232, 240) !important;
+    color: rgb(226, 232, 240) !important;
+  }
+  
+  /* For the preview pane */
+  .editor :global(.w-md-editor-preview) {
+    background-color: rgb(15, 23, 42) !important;
+    color: rgb(226, 232, 240) !important;
+  }
+  
+  /* For the toolbar items */
+  .editor :global(.w-md-editor-toolbar) {
+    background-color: rgb(15, 23, 42) !important;
+  }
+  
+  .editor :global(.w-md-editor-toolbar > ul > li > button) {
+    color: rgb(226, 232, 240) !important;
+  }
+  
+  /* For the text area container */
+  .editor :global(.w-md-editor-text) {
+    background-color: rgb(15, 23, 42) !important;
+    color: rgb(226, 232, 240) !important;
+  }
