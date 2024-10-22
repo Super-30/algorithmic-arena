@@ -1,125 +1,173 @@
-import fs from "fs";
-import path from "path";
+import { PrismaClient } from "@prisma/client";
 import { ProblemDefinitionParser } from "./ProblemDefinitionGenerator";
 import { FullProblemDefinitionParser } from "./FullProblemDefinitionGenerator";
-import dotenv from 'dotenv'
-dotenv.config()
+import { LANGUAGE_MAPPING } from "../../../packages/common/language/index";
+const fs = require('fs').promises;
+const path = require('path');
 
-function generatePartialBoilerplate(generatorFilePath: string) {
-  const inputFilePath = path.join(generatorFilePath, "Structure.md");
-  const boilerplatePath = path.join(
-    generatorFilePath,
-    "boilerplate",
-  );
+const prisma = new PrismaClient();
 
-  // Read the input file
-  const input = fs.readFileSync(inputFilePath, "utf-8");
 
-  // Parse the input
-  const parser = new ProblemDefinitionParser();
-  parser.parse(input);
-
-  // Generate the boilerplate code
-  const cppCode = parser.generateCpp();
-  const jsCode = parser.generateJs();
-  const rustCode = parser.generateRust();
-  const javaCode = parser.generateJava();
-
-  // Ensure the boilerplate directory exists
-  if (!fs.existsSync(boilerplatePath)) {
-    fs.mkdirSync(boilerplatePath, { recursive: true });
-  }
-
-  // Write the boilerplate code to respective files
-  fs.writeFileSync(path.join(boilerplatePath, "function.cpp"), cppCode);
-  fs.writeFileSync(path.join(boilerplatePath, "function.js"), jsCode);
-  fs.writeFileSync(path.join(boilerplatePath, "function.rs"), rustCode);
-  fs.writeFileSync(path.join(boilerplatePath, "function.java"), javaCode);
-
-  console.log("Boilerplate code generated successfully!");
+function generateSlug(title: string): string {
+  return title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
 }
 
-function generateFullBoilerPLate(generatorFilePath: string) {
-  const inputFilePath = path.join(generatorFilePath, "Structure.md");
-  const boilerplatePath = path.join(
-    generatorFilePath,
-    "boilerplate-full",
-  );
 
-  // Read the input file
-  const input = fs.readFileSync(inputFilePath, "utf-8");
+export async function createProblem(problemData: {
+  problemName: string;
+  problemDescription: string;
+  problemMarkdown: string; 
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+  testCases: Array<{ input: any; output: any }>;
+  functionName: string; // Provided by the user
+  inputFields: Array<{ type: string; name: string }>; // Provided by the user
+  outputFields: Array<{ type: string; name: string }>; // Provided by the user
+}) {
+  const {
+    problemName,
+    problemDescription,
+    problemMarkdown,
+    difficulty,
+    testCases,
+    functionName,
+    inputFields,
+    outputFields,
+  } = problemData;
+  console.log('Extracted values:', { problemName, functionName, inputFields, outputFields });
 
-  // Parse the input
-  const parser = new FullProblemDefinitionParser();
-  parser.parse(input);
-
-  // Generate the boilerplate code
-  const cppCode = parser.generateCpp();
-  const jsCode = parser.generateJs();
-  const rustCode = parser.generateRust();
-  const javaCode = parser.generateJava();
-
-  // Ensure the boilerplate directory exists
-  if (!fs.existsSync(boilerplatePath)) {
-    fs.mkdirSync(boilerplatePath, { recursive: true });
-  }
-
-  // Write the boilerplate code to respective files
-  fs.writeFileSync(path.join(boilerplatePath, "function.cpp"), cppCode);
-  fs.writeFileSync(path.join(boilerplatePath, "function.js"), jsCode);
-  fs.writeFileSync(path.join(boilerplatePath, "function.rs"), rustCode);
-  fs.writeFileSync(path.join(boilerplatePath, "function.java"), javaCode);
-
-  console.log("Boilerplate code generated successfully!");
-}
-
-const getFolders = (dir: string) => {
-  return new Promise((resolve, reject) => {
-    fs.readdir(dir, (err, files) => {
-      if (err) {
-        return reject(err);
-      }
-
-      const folders: string[] = [];
-      let pending = files.length;
-
-      if (!pending) return resolve(folders);
-
-      files.forEach(file => {
-        const filePath = path.join(dir, file);
-        fs.stat(filePath, (err, stats) => {
-          if (err) {
-            return reject(err);
-          }
-
-          if (stats.isDirectory()) {
-            folders.push(file);
-          }
-
-          if (!--pending) {
-            resolve(folders);
-          }
-        });
-      });
-    });
+  // Initialize parsers with user-provided metadata
+  const partialParser = new ProblemDefinitionParser({
+    problemName: problemName,
+    functionName: functionName,
+    inputFields: inputFields,   // Passed directly from user input
+    outputFields: outputFields, // Passed directly from user input
   });
-};
-function main() {
-  fs.readdir(process.env.PROBLEMS_DIR_PATH || "", (err, files) => {
-    files.forEach(file => {
-      if (file)
-        generatePartialBoilerplate(path.join(process.env.PROBLEMS_DIR_PATH || "", file));
-      generateFullBoilerPLate(path.join(process.env.PROBLEMS_DIR_PATH || "", file));
-    })
+
+  const fullParser = new FullProblemDefinitionParser({
+    problemName: problemName,
+    functionName: functionName,
+    inputFields: inputFields,   // Passed directly from user input
+    outputFields: outputFields,
+    testCases: testCases // Passed directly from user input
+  });
+  const testInput=testCases.map(testcase=>{
+    testcase.input[0]
   })
-}
-if (!process.env.PROBLEMS_DIR_PATH) {
-  console.log("Store a valid problems dir path in .env", process.env.PROBLEMS_DIR_PATH);
-} else {
-  getFolders(process.env.PROBLEMS_DIR_PATH).then((folders: any) => {
-    folders.forEach((folder: string) => {
-      generatePartialBoilerplate(path.join(process.env.PROBLEMS_DIR_PATH || "", folder));
-      generateFullBoilerPLate(path.join(process.env.PROBLEMS_DIR_PATH || "", folder));
+
+  // Generate boilerplate codes
+  const boilerplateCodes = [
+    { language: 'cpp', code: partialParser.generateCpp(), fullcode: fullParser.generateCpp() },
+    { language: 'js', code: partialParser.generateJs(),fullcode: fullParser.generateJs() },
+    { language: 'rs', code: partialParser.generateRust(), fullcode: fullParser.generateRust() },
+    { language: 'Java', code: partialParser.generateJava(), fullcode: fullParser.generateJava() },
+  ];
+  const createInput = async (testCases: Array<{ input: any; output: any }>,problemName: string) => {
+    const root='../problems'
+    const inputFolder = '/tests/inputs'; 
+    problemName=problemName.toLowerCase().replace(" ", "-");
+    const folderName = path.join(root,problemName, inputFolder);
+    try {
+      await fs.mkdir(folderName, { recursive: true });
+      console.log(`Folder ${folderName} has been created or already exists.`);
+    } catch (error) {
+      console.error(`Error creating folder: ${error}`);
+      return;
+    }
+  
+    const inputArray = testCases.map(testCase => testCase.input);
+  
+    // Use for...of to handle async/await properly
+    for (let [index, input] of inputArray.entries()) {
+      const formattedInput = formatTestCaseInput(input);
+      const filePath = path.join(folderName, `${index}.txt`);
+  
+      try {
+        await fs.writeFile(filePath, formattedInput, 'utf8');
+        console.log(`File ${filePath} has been created successfully.`);
+      } catch (error) {
+        console.error(`Error creating file ${filePath}: ${error}`);
+      }
+    }
+  };
+  const createOutput = async (testCases: Array<{ input: any; output: any }>, problemName: string) => {
+    const root='../problems'
+    const outputFolder = '/tests/outputs'; 
+    problemName=problemName.toLowerCase().replace(" ", "-");
+    const folderName = path.join(root,problemName, outputFolder);
+    try {
+      await fs.mkdir(folderName, { recursive: true });
+      console.log(`Folder ${folderName} has been created or already exists.`);
+    } catch (error) {
+      console.error(`Error creating folder: ${error}`);
+      return;
+    }
+  
+    const outputArray = testCases.map(testCase => testCase.output);
+  
+    // Use for...of to handle async/await properly
+    for (let [index, output] of outputArray.entries()) {
+      const formattedInput = formatTestCaseInput(output);
+      const filePath = path.join(folderName, `${index}.txt`);
+  
+      try {
+        await fs.writeFile(filePath, formattedInput, 'utf8');
+        console.log(`File ${filePath} has been created successfully.`);
+      } catch (error) {
+        console.error(`Error creating file ${filePath}: ${error}`);
+      }
+    }
+  };
+  function formatTestCaseInput(input: any) {
+    return input.map((item: String[]) => Array.isArray(item) ? item.join(' ') : item).join('\n');
+  }
+
+  try {
+    // Generate Slug
+    const slug = generateSlug(problemName);
+    
+
+    // Create the Problem
+    const problem = await prisma.problem.create({
+      data: {
+        title: problemName,
+        description: problemDescription,
+        problemMarkdown: problemMarkdown,
+        difficulty: difficulty,
+        slug: slug,
+        // testCases: {
+        //   create: testCases.map((tc) => ({
+        //     input: tc.input,
+        //     output: tc.output,
+        //   })),
+        // },
+        defaultCode: {
+          create: boilerplateCodes.map((bc) => {
+            const languageMapping = LANGUAGE_MAPPING[bc.language.toLowerCase()];
+            if (!languageMapping) {
+              throw new Error(`Unsupported language: ${bc.language}`);
+            }  
+            return {
+              code: bc.code,
+              fullcode: bc.fullcode,
+              languageId: languageMapping.internal,
+            };
+          }),
+        }
+      },
+      include: {
+        testCases: true,
+        defaultCode: true,
+      },
     });
-  })
+
+    console.log("Problem created successfully:", problem);
+    createInput(testCases,problemName);
+    createOutput(testCases, problemName);
+    return problem;
+  } catch (error) {
+    console.error("Error creating problem:", error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
 }
