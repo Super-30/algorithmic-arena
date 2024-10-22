@@ -1,6 +1,4 @@
 "use client";
-
-
 import Editor from "@monaco-editor/react";
 import { Tabs, TabsList, TabsTrigger } from "@repo/ui/tabs";
 import { Button } from "@repo/ui/button";
@@ -21,7 +19,6 @@ import { toast } from "react-toastify";
 import { signIn, useSession } from "next-auth/react";
 import { submissions as SubmissionsType } from "@prisma/client";
 import { Turnstile } from "@marsidev/react-turnstile";
-
 
 const TURNSTILE_SITE_KEY =
   process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY ||
@@ -45,7 +42,6 @@ export interface IProblem {
   }[];
 }
 
-//main export function 
 export const ProblemSubmitBar = ({
   problem,
   contestId,
@@ -82,7 +78,6 @@ export const ProblemSubmitBar = ({
   );
 };
 
-//render submissions in the submit table 
 function Submissions({ problem }: { problem: IProblem }) {
   const [submissions, setSubmissions] = useState<ISubmission[]>([]);
 
@@ -91,12 +86,10 @@ function Submissions({ problem }: { problem: IProblem }) {
       const response = await axios.get(
         `/api/submission/bulk?problemId=${problem.id}`
       );
-     
-
       setSubmissions(response.data.submissions || []);
     };
     fetchData();
-  }, [problem.id]);
+  }, []);
 
   return (
     <div>
@@ -105,7 +98,6 @@ function Submissions({ problem }: { problem: IProblem }) {
   );
 }
 
-//submits the code and polls the result 
 function SubmitProblem({
   problem,
   contestId,
@@ -134,7 +126,7 @@ function SubmitProblem({
     setCode(defaultCode);
   }, [problem]);
 
-  async function pollWithBackoff(id: string, retries: number,delay: number=1000) { 
+  async function pollWithBackoff(id: string, retries: number) {
     if (retries === 0) {
       setStatus(SubmitStatus.SUBMIT);
       toast.error("Not able to get status ");
@@ -142,15 +134,12 @@ function SubmitProblem({
     }
 
     const response = await axios.get(`/api/submission/?id=${id}`);
-    
 
-    console.log('response form SubmitProblem',response);
+    console.log(response.data.submission);
     if (response.data.submission.status === "PENDING") {
-      
       setTestcases(response.data.submission.testcases);
-      const nextDelay = Math.min(delay * 2, 30 * 1000);
-      await new Promise((resolve) => setTimeout(resolve, nextDelay));
-      pollWithBackoff(id, retries - 1,nextDelay);
+      await new Promise((resolve) => setTimeout(resolve, 2.5 * 1000));
+      pollWithBackoff(id, retries - 1);
     } else {
       if (response.data.submission.status === "AC") {
         setStatus(SubmitStatus.ACCEPTED);
@@ -177,9 +166,7 @@ function SubmitProblem({
         activeContestId: contestId,
         token: token,
       });
-      console.log('response from submit fun inside',response);
-      
-      pollWithBackoff(response.data.id, 10,1000);
+      pollWithBackoff(response.data.id, 10);
     } catch (e) {
       //@ts-ignore
       toast.error(e.response.statusText);
@@ -246,7 +233,7 @@ function SubmitProblem({
             : "Login to submit"}
         </Button>
       </div>
-      <RenderTestcase testcases={testcases}  />
+      <RenderTestcase testcases={testcases} />
     </div>
   );
 }
@@ -274,52 +261,19 @@ function renderResult(status: number | null) {
   }
 }
 
-function RenderTestcase({ testcases }: { testcases: any[]
-}) {
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-
-  const toggleTestcase = (index: number) => {
-    setExpandedIndex(expandedIndex === index ? null : index); 
-  };
+function RenderTestcase({ testcases }: { testcases: SubmissionsType[] }) {
   return (
-    <div className="grid grid-cols-1 gap-4">
-      {testcases.length > 0 && testcases.map((testcase, index) => {
-        const expectedOutput = atob(testcase.expected_output ?? '').trim(); 
-        const userOutput = atob(testcase.stdout ?? '').trim(); 
-        const isExpanded = expandedIndex === index;
-
-        return (
-          <div key={index} className="border rounded-md p-4">
-            <div
-              className="items-center cursor-pointer"
-              onClick={() => toggleTestcase(index)}
-            >
-              <div className="font-semibold">Test #{index + 1}</div>
-              <div>{renderResult(testcase.status_id)}</div>
-            </div>
-            {isExpanded && (
-              <div className="mt-4">
-                <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-md mb-2">
-                  <div className="font-semibold">Expected Output: {expectedOutput}</div>
-                </div>
-                <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-md mb-2">
-                  <div className="font-semibold">Your Output: {userOutput}</div>
-                </div>
-                {expectedOutput === userOutput ? 
-                  <div className="text-green-500 font-semibold">
-                    Output Match
-                  </div>
-                  :
-                  <div className="text-red-500 font-semibold">
-                    Wrong Answer
-                  </div>
-                }
-                <button className="bg-gray-100 dark:bg-gray-800 p-3 rounded-md mb-2">Add case</button>
-              </div>
-            )}
+    <div className="grid grid-cols-6 gap-4">
+      {testcases.map((testcase, index) => (
+        <div key={index} className="border rounded-md">
+          <div className="px-2 pt-2 flex justify-center">
+            <div className="">Test #{index + 1}</div>
           </div>
-        );
-      })}
+          <div className="p-2 flex justify-center">
+            {renderResult(testcase.status_id)}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

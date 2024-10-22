@@ -1,6 +1,6 @@
 import prismaClient from "../src";
 import { LANGUAGE_MAPPING } from "@repo/common/language";
-// import { addProblemsInDB } from "./updateQuestion";
+import { addProblemsInDB } from "./updateQuestion";
 import languages from "../src/languages";
 
 (async () => {
@@ -26,9 +26,9 @@ import languages from "../src/languages";
   }
 }
 )();
-// try {
-//   addProblemsInDB();
-// }
-// catch (e) {
-//   console.log("Data already persist in the DB!")
-// }
+try {
+  addProblemsInDB();
+}
+catch (e) {
+  console.log("Data already persist in the DB!")
+}
