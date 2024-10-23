@@ -4,7 +4,7 @@ import { getProblems } from "../../../db/problem";
 
 
 const page = async () => {
-  const problems = await getProblems();
+  // const problems = await getProblems();
   return (
     <div className="container md:mt-12 mt-6">
       <h1 className="lg:text-2xl font-bold md:text-xl text-muted-foreground text-lg">

@@ -6,7 +6,7 @@ export const getProblem = async (problemId: string, contestId?: string) => {
     const contest = await db.contest.findFirst({
       where: {
         id: contestId,
-        hidden: false,
+        hidden: true,
       },
     });
 
@@ -16,7 +16,7 @@ export const getProblem = async (problemId: string, contestId?: string) => {
 
     const problem = await db.problem.findFirst({
       where: {
-        title : problemId,
+        slug: problemId,
         contests: {
           some: {
             contestId: contestId,
@@ -32,7 +32,7 @@ export const getProblem = async (problemId: string, contestId?: string) => {
 
   const problem = await db.problem.findFirst({
     where: {
-      title : problemId,
+      slug: problemId,
     },
     include: {
       defaultCode: true,
@@ -44,9 +44,9 @@ export const getProblem = async (problemId: string, contestId?: string) => {
 export const getProblems = async (query?: string): Promise<Problem[]> => {
   const problems = await db.problem.findMany({
     where: {
-      hidden: false,
+      hidden: true,
       ...(query && {
-        title: {
+        slug: {
           contains: query,
           mode: "insensitive",
         },

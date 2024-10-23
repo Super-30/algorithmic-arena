@@ -19,66 +19,7 @@ export class ProblemDefinitionParser {
     this.outputFields = metadata.outputFields;
   }
 
-  // parse(input: string): void {
-  //   const lines = input.split("\n").map((line) => line.trim());
-  //   console.log('md file after trim ',lines);
-    
-    
-
-  //   let currentSection: string | null = null;
-
-  //   lines.forEach((line) => {
-  //     console.log('code reached here line parsing',line);
-      
-  //     if (line.startsWith("Problem Name:")) {
-  //       this.problemName = this.extractQuotedValue(line);
-  //     } else if (line.startsWith("Function Name:")) {
-  //       this.functionName = this.extractValue(line);
-  //     } else if (line.startsWith("Input Structure:")) {
-  //       currentSection = "input";
-  //     } else if (line.startsWith("Output Structure:")) {
-  //       currentSection = "output";
-  //     } else if (line.startsWith("Input Field:")) {
-  //       if (currentSection === "input") {
-  //         const field = this.extractField(line);
-  //         if (field) this.inputFields.push(field);
-  //       }
-  //     } else if (line.startsWith("Output Field:")) {
-  //       if (currentSection === "output") {
-  //         const field = this.extractField(line);
-  //         if (field) this.outputFields.push(field);
-  //       }
-  //     }
-  //   });
-  //   console.log("data after paarsing :", {
-  //     problemName: this.problemName,
-  //     functionName: this.functionName,
-  //     inputFields: this.inputFields,
-  //     outputFields: this.outputFields,
-  // });
-  // }
-
-  // extractQuotedValue(line: string): string {
-  //   const match = line.match(/: "(.*)"$/);
-  //   return match ? match[1] : "";
-  // }
-
-  // extractValue(line: string): string {
-  //   const match = line.match(/: (\w+)$/);
-  //   return match ? match[1] : "";
-  // }
-
-  // extractField(line: string): { type: string; name: string } | null {
-  //   const match = line.match(/Field: (\w+(?:<\w+>)?) (\w+)$/);
-  //   return match ? { type: match[1], name: match[2] } : null;
-  // }
-
   generateCpp(): string {
-    console.log("Generating C++ Code with:", {
-      functionName: this.functionName,
-      inputFields: this.inputFields,
-      outputFields: this.outputFields,
-  });
     const inputs = this.inputFields
       .map((field) => `${this.mapTypeToCpp(field.type)} ${field.name}`)
       .join(", ");
@@ -146,6 +87,14 @@ export class ProblemDefinitionParser {
         return "std::vector<std::string>";
       case "list<bool>":
         return "std::vector<bool>";
+      case "list<list<int>>":
+        return "std::vector<std::vector<int>>";
+      case "list<list<float>>":
+        return "std::vector<std::vector<float>>";
+      case "list<list<string>>":
+        return "std::vector<std::vector<std::string>>";
+      case "list<list<bool>>":
+        return "std::vector<std::vector<bool>>";
       default:
         return "unknown";
     }
