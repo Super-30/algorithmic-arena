@@ -5,11 +5,11 @@ import '@xyflow/react/dist/style.css';
 
 interface FlowProps {
   nodes: any[];
-  edges: any[];
+  edges?: any[]; // Optional edges prop
   onNodeClick?: (node: any) => void;
 }
 
-export default function ReactFlowComponent({ nodes, edges }: FlowProps) {
+export default function ReactFlowComponent({ nodes, edges = [] }: FlowProps) { // Default edges to an empty array
   const [selectedNode, setSelectedNode] = useState<any | null>(null);
   const [isTableVisible, setIsTableVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,10 +55,12 @@ export default function ReactFlowComponent({ nodes, edges }: FlowProps) {
         overflow: 'hidden',
         position: 'relative',
         cursor: 'default',
-        minWidth: '320px',  // Minimum width for very small screens
+        minWidth: '320px', 
+      //  backgroundColor: 'red',
+        
       }}
     >
-      <div style={{ height: '280vh', width: '100%', minWidth: '320px' }}>
+      <div style={{ height: '320vh', width: '90%', minWidth: '150px' }}>
         <ReactFlow
           nodes={nodes.map(node => ({
             ...node,

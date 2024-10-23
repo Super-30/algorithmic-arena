@@ -35,11 +35,11 @@ export default function RoadmapLanding() {
   const { nodes, edges } = getDiagramData();
 
   return (
-    <div className="mt-8 mx-4 sm:ml-16 sm:mr-8 md:ml-24 md:mr-16 px-2 md:px-6 lg:px-20">
-      <div className="flex flex-col gap-4 sm:flex-row md:gap-12 lg:gap-8 ml-16 justify-center h-auto sm:h-[80px]">
+    <div className="mt-6 mx-4 my-4 max-w-[75%] ml-60">
+      <div className="flex flex-col gap-2 sm:flex-row md:gap-12 lg:gap-4 ml-44 justify-center h-auto sm:h-[80px] mr-36 ">
         <button
-          className={`flex items-center justify-between p-4 sm:px-4 sm:py-6 font-semibold rounded-lg border-2 ${activeTab === "quick" ? "bg-white dark:bg-gray-600" : "bg-gray-400 dark:bg-[#0F172A] dark:text-white text-gray-800"
-            }  border-[#4E7AFF] w-[390px]`}
+          className={`flex items-center justify-between p-4 sm:px-4 sm:py-6 font-semibold rounded-lg border-2 ${activeTab === "quick" ? "bg-white dark:bg-[#0F172A]" : "bg-white dark:bg-[#0F172A] dark:text-white text-gray-800"
+            }  border-[#4E7AFF] w-[323px]`}
           onClick={() => handleTabClick("quick")}
         >
           <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center bg-gray-200 dark:bg-[#3259E8] rounded mr-2 sm:mr-4">
@@ -58,8 +58,8 @@ export default function RoadmapLanding() {
         </button>
 
         <button
-          className={`flex items-center justify-between p-4 sm:px-4 sm:py-6 font-semibold rounded-lg border-2 ${activeTab === "balance" ? "bg-gray-600 text-white" : "bg-white dark:bg-[#0F172A] dark:text-white text-gray-800"
-            } border-[#1E293B] w-[390px]`}
+          className={`flex items-center justify-between p-4 sm:px-4 sm:py-6 font-semibold rounded-lg border-2 ${activeTab === "balance" ? "bg-white dark:bg-[#0F172A]" : "bg-white dark:bg-[#0F172A] dark:text-white text-gray-800"
+            } border-[#E2E8F0] dark:border-[#1E293B] w-[323px] `}
           onClick={() => handleTabClick("balance")}
         >
           <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded mr-2 sm:mr-4">
@@ -78,8 +78,8 @@ export default function RoadmapLanding() {
         </button>
 
         <button
-          className={`flex items-center justify-between p-4 sm:px-4 sm:py-6 font-semibold rounded-lg border-2 ${activeTab === "in-depth" ? "bg-gray-600 text-white" : "bg-white dark:bg-[#0F172A] dark:text-white text-gray-800"
-            } border-[#1E293B] w-[390px]`}
+          className={`flex items-center justify-between p-4 sm:px-4 sm:py-6 font-semibold rounded-lg border-2 ${activeTab === "in-depth" ? "bg-white dark:bg-[#0F172A]" : "bg-white dark:bg-[#0F172A] dark:text-white text-gray-800"
+            } border-[#E2E8F0] dark:border-[#1E293B] w-[323px]`}
           onClick={() => handleTabClick("in-depth")}
         >
           <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded mr-2 sm:mr-4">
@@ -99,7 +99,7 @@ export default function RoadmapLanding() {
       </div>
 
 
-      <div className="mt-6 w-full ml-16">
+      <div className="mt-6 w-full ml-4 ">
         <ProgressBarWithStatus />
       </div>
 
