@@ -1,31 +1,22 @@
-import { PrismaClient, BoilerplateType } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { ProblemDefinitionParser } from "./ProblemDefinitionGenerator";
 import { FullProblemDefinitionParser } from "./FullProblemDefinitionGenerator";
-import * as dotenv from 'dotenv';
-
-dotenv.config();
+import { LANGUAGE_MAPPING } from "../../../packages/common/language/index";
+const fs = require('fs').promises;
+const path = require('path');
 
 const prisma = new PrismaClient();
 
-/**
- * Function to generate a slug from the problem name.
- * @param title - The title of the problem.
- * @returns A URL-friendly slug string.
- */
+
 function generateSlug(title: string): string {
   return title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
 }
 
-/**
- * Function to create a new problem in the database.
- * @param problemData - An object containing all necessary problem details, including metadata.
- * @returns The created problem record from the database.
- */
+
 export async function createProblem(problemData: {
   problemName: string;
   problemDescription: string;
-  problemMarkdown: string;
-  structureMarkdown: string; // Content of Structure.md
+  problemMarkdown: string; 
   difficulty: 'EASY' | 'MEDIUM' | 'HARD';
   testCases: Array<{ input: any; output: any }>;
   functionName: string; // Provided by the user
@@ -36,7 +27,6 @@ export async function createProblem(problemData: {
     problemName,
     problemDescription,
     problemMarkdown,
-    structureMarkdown,
     difficulty,
     testCases,
     functionName,
@@ -57,27 +47,84 @@ export async function createProblem(problemData: {
     problemName: problemName,
     functionName: functionName,
     inputFields: inputFields,   // Passed directly from user input
-    outputFields: outputFields, // Passed directly from user input
+    outputFields: outputFields,
+    testCases: testCases // Passed directly from user input
   });
-
-
+  const testInput=testCases.map(testcase=>{
+    testcase.input[0]
+  })
 
   // Generate boilerplate codes
   const boilerplateCodes = [
-    { language: 'C++', code: partialParser.generateCpp(), boilerplateType: 'PARTIAL' as BoilerplateType },
-    { language: 'JavaScript', code: partialParser.generateJs(), boilerplateType: 'PARTIAL' as BoilerplateType },
-    { language: 'Rust', code: partialParser.generateRust(), boilerplateType: 'PARTIAL' as BoilerplateType },
-    { language: 'Java', code: partialParser.generateJava(), boilerplateType: 'PARTIAL' as BoilerplateType },
-    // Full Boilerplate
-    { language: 'C++', code: fullParser.generateCpp(), boilerplateType: 'FULL' as BoilerplateType },
-    { language: 'JavaScript', code: fullParser.generateJs(), boilerplateType: 'FULL' as BoilerplateType },
-    { language: 'Rust', code: fullParser.generateRust(), boilerplateType: 'FULL' as BoilerplateType },
-    { language: 'Java', code: fullParser.generateJava(), boilerplateType: 'FULL' as BoilerplateType },
+    { language: 'cpp', code: partialParser.generateCpp(), fullcode: fullParser.generateCpp() },
+    { language: 'js', code: partialParser.generateJs(),fullcode: fullParser.generateJs() },
+    { language: 'rs', code: partialParser.generateRust(), fullcode: fullParser.generateRust() },
+    { language: 'Java', code: partialParser.generateJava(), fullcode: fullParser.generateJava() },
   ];
+  const createInput = async (testCases: Array<{ input: any; output: any }>,problemName: string) => {
+    const root='../problems'
+    const inputFolder = '/tests/inputs'; 
+    problemName=problemName.toLowerCase().replace(" ", "-");
+    const folderName = path.join(root,problemName, inputFolder);
+    try {
+      await fs.mkdir(folderName, { recursive: true });
+      console.log(`Folder ${folderName} has been created or already exists.`);
+    } catch (error) {
+      console.error(`Error creating folder: ${error}`);
+      return;
+    }
+  
+    const inputArray = testCases.map(testCase => testCase.input);
+  
+    // Use for...of to handle async/await properly
+    for (let [index, input] of inputArray.entries()) {
+      const formattedInput = formatTestCaseInput(input);
+      const filePath = path.join(folderName, `${index}.txt`);
+  
+      try {
+        await fs.writeFile(filePath, formattedInput, 'utf8');
+        console.log(`File ${filePath} has been created successfully.`);
+      } catch (error) {
+        console.error(`Error creating file ${filePath}: ${error}`);
+      }
+    }
+  };
+  const createOutput = async (testCases: Array<{ input: any; output: any }>, problemName: string) => {
+    const root='../problems'
+    const outputFolder = '/tests/outputs'; 
+    problemName=problemName.toLowerCase().replace(" ", "-");
+    const folderName = path.join(root,problemName, outputFolder);
+    try {
+      await fs.mkdir(folderName, { recursive: true });
+      console.log(`Folder ${folderName} has been created or already exists.`);
+    } catch (error) {
+      console.error(`Error creating folder: ${error}`);
+      return;
+    }
+  
+    const outputArray = testCases.map(testCase => testCase.output);
+  
+    // Use for...of to handle async/await properly
+    for (let [index, output] of outputArray.entries()) {
+      const formattedInput = formatTestCaseInput(output);
+      const filePath = path.join(folderName, `${index}.txt`);
+  
+      try {
+        await fs.writeFile(filePath, formattedInput, 'utf8');
+        console.log(`File ${filePath} has been created successfully.`);
+      } catch (error) {
+        console.error(`Error creating file ${filePath}: ${error}`);
+      }
+    }
+  };
+  function formatTestCaseInput(input: any) {
+    return input.map((item: String[]) => Array.isArray(item) ? item.join(' ') : item).join('\n');
+  }
 
   try {
     // Generate Slug
     const slug = generateSlug(problemName);
+    
 
     // Create the Problem
     const problem = await prisma.problem.create({
@@ -85,30 +132,37 @@ export async function createProblem(problemData: {
         title: problemName,
         description: problemDescription,
         problemMarkdown: problemMarkdown,
-        structureMarkdown: structureMarkdown,
         difficulty: difficulty,
         slug: slug,
-        testCases: {
-          create: testCases.map((tc) => ({
-            input: tc.input,
-            output: tc.output,
-          })),
-        },
-        boilerplateCodes: {
-          create: boilerplateCodes.map((bc) => ({
-            language: bc.language,
-            code: bc.code,
-            boilerplateType: bc.boilerplateType,
-          })),
-        },
+        // testCases: {
+        //   create: testCases.map((tc) => ({
+        //     input: tc.input,
+        //     output: tc.output,
+        //   })),
+        // },
+        defaultCode: {
+          create: boilerplateCodes.map((bc) => {
+            const languageMapping = LANGUAGE_MAPPING[bc.language.toLowerCase()];
+            if (!languageMapping) {
+              throw new Error(`Unsupported language: ${bc.language}`);
+            }  
+            return {
+              code: bc.code,
+              fullcode: bc.fullcode,
+              languageId: languageMapping.internal,
+            };
+          }),
+        }
       },
       include: {
         testCases: true,
-        boilerplateCodes: true,
+        defaultCode: true,
       },
     });
 
     console.log("Problem created successfully:", problem);
+    createInput(testCases,problemName);
+    createOutput(testCases, problemName);
     return problem;
   } catch (error) {
     console.error("Error creating problem:", error);

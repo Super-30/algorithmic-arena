@@ -1,4 +1,6 @@
+import { db } from "../db";
 import fs from "fs";
+import { LANGUAGE_MAPPING } from "@repo/common/language";
 
 type SUPPORTED_LANGS = "js" | "cpp" | "rs"|"java";
 
@@ -13,13 +15,14 @@ const MOUNT_PATH = process.env.MOUNT_PATH ?? "/home/ubuntu/algorithmic-arena/app
 export const getProblem = async (
   problemId: string,
   languageId: SUPPORTED_LANGS,
+  title: string
 ): Promise<Problem> => {
   const fullBoilderPlate = await getProblemFullBoilerplateCode(
     problemId,
     languageId,
   );
-  const inputs = await getProblemInputs(problemId);
-  const outputs = await getProblemOutputs(problemId);
+  const inputs = await getProblemInputs(title.toLowerCase().replace(' ','-'));
+  const outputs = await getProblemOutputs(title.toLowerCase().replace(' ','-'));
 
   return {
     id: problemId,
@@ -33,18 +36,22 @@ async function getProblemFullBoilerplateCode(
   problemId: string,
   languageId: SUPPORTED_LANGS,
 ): Promise<string> {
-  return new Promise((resolve, reject) => {
-    fs.readFile(
-      `${MOUNT_PATH}/${problemId}/boilerplate-full/function.${languageId}`,
-      { encoding: "utf-8" },
-      (err, data) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(data);
-      },
-    );
-  });
+  const id=LANGUAGE_MAPPING[languageId]?.internal  
+  const defaultCode=await db.defaultCode.findFirst({
+    where: {
+      problemId: problemId,
+      languageId: id
+    },
+    select: {
+      fullcode: true,
+    }
+  })
+  
+  if(!defaultCode?.fullcode){
+    console.log(`Boilerplate code not found for problem ${problemId} and language ${languageId}`);
+    return ''
+  }
+  return defaultCode.fullcode;
 }
 
 async function getProblemInputs(problemId: string): Promise<string[]> {

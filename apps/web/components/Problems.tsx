@@ -1,13 +1,6 @@
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@repo/ui/card";
+
 import { getProblems } from "../app/db/problem";
-import { PrimaryButton } from "./LinkButton";
+
 import { Input } from "@repo/ui/input";
 import { Button } from "@repo/ui/button";
 import { redirect } from "next/navigation";
@@ -15,6 +8,8 @@ import Link from "next/link";
 
 export async function Problems({ query }: { query: string | null }) {
   const problems = await getProblems(query ? query : undefined);
+
+  console.log(problems);
   return (
     <section className=" py-8 md:py-22">
       <div className="container mx-auto px-4 md:px-6">
@@ -62,10 +57,11 @@ export async function Problems({ query }: { query: string | null }) {
             </div>
             {problems.map((problem) => (
               <Link
-                href={`/problem/${problem.title}`}
+                href={`/problem/${problem.slug}`}
                 className="flex text-muted-foreground hover:bg-muted/50 duration-300"
                 key={problem.id}
               >
+                
                 <div className="px-2 py-2 flex-1 font-medium  capitalize">
                   {problem.title.split("-").join(" ")}
                 </div>

@@ -45,7 +45,7 @@ export interface IProblem {
   }[];
 }
 
-
+//main export function 
 export const ProblemSubmitBar = ({
   problem,
   contestId,
@@ -82,6 +82,7 @@ export const ProblemSubmitBar = ({
   );
 };
 
+//render submissions in the submit table 
 function Submissions({ problem }: { problem: IProblem }) {
   const [submissions, setSubmissions] = useState<ISubmission[]>([]);
 
@@ -93,11 +94,6 @@ function Submissions({ problem }: { problem: IProblem }) {
      
 
       setSubmissions(response.data.submissions || []);
-      console.log('this is full list',response.data);
-      
-      console.log('submissons set from ProblemSubmitBar',response.data.submissions[0].testcases.filter(
-        (testcase: { status_id: any; }) => testcase.status_id=== 3,
-      ).length);
     };
     fetchData();
   }, [problem.id]);
@@ -109,6 +105,7 @@ function Submissions({ problem }: { problem: IProblem }) {
   );
 }
 
+//submits the code and polls the result 
 function SubmitProblem({
   problem,
   contestId,
@@ -137,7 +134,7 @@ function SubmitProblem({
     setCode(defaultCode);
   }, [problem]);
 
-  async function pollWithBackoff(id: string, retries: number,delay: number=1000) {//added delay paramter 
+  async function pollWithBackoff(id: string, retries: number,delay: number=1000) { 
     if (retries === 0) {
       setStatus(SubmitStatus.SUBMIT);
       toast.error("Not able to get status ");
@@ -145,12 +142,13 @@ function SubmitProblem({
     }
 
     const response = await axios.get(`/api/submission/?id=${id}`);
+    
 
-    console.log(response.data.submission);
+    console.log('response form SubmitProblem',response);
     if (response.data.submission.status === "PENDING") {
       
       setTestcases(response.data.submission.testcases);
-      const nextDelay = Math.min(delay * 2, 30 * 1000);//increases the delay after every poll request
+      const nextDelay = Math.min(delay * 2, 30 * 1000);
       await new Promise((resolve) => setTimeout(resolve, nextDelay));
       pollWithBackoff(id, retries - 1,nextDelay);
     } else {
@@ -179,6 +177,8 @@ function SubmitProblem({
         activeContestId: contestId,
         token: token,
       });
+      console.log('response from submit fun inside',response);
+      
       pollWithBackoff(response.data.id, 10,1000);
     } catch (e) {
       //@ts-ignore
@@ -246,7 +246,7 @@ function SubmitProblem({
             : "Login to submit"}
         </Button>
       </div>
-      <RenderTestcase testcases={testcases} code={code[language]} />
+      <RenderTestcase testcases={testcases}  />
     </div>
   );
 }
@@ -279,7 +279,7 @@ function RenderTestcase({ testcases }: { testcases: any[]
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const toggleTestcase = (index: number) => {
-    setExpandedIndex(expandedIndex === index ? null : index); // Toggle the selected test case
+    setExpandedIndex(expandedIndex === index ? null : index); 
   };
   return (
     <div className="grid grid-cols-1 gap-4">
@@ -323,18 +323,3 @@ function RenderTestcase({ testcases }: { testcases: any[]
     </div>
   );
 }
-
-
-
-{/* <div className="grid grid-cols-6 gap-4">
-      {testcases.map((testcase, index) =>(
-        <div key={index} className="border rounded-md">
-          <div className="px-2 pt-2 flex justify-center">
-            <button className="cursor-pointer">Test #{index + 1}</button>
-          </div>
-          <div className="p-2 flex justify-center">
-            {renderResult(testcase.status_id)}
-          </div>
-        </div>
-      ))}
-    </div> */}

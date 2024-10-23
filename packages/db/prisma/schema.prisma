@@ -7,11 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum BoilerplateType {
-  PARTIAL
-  FULL
-}
-
 model User {
   id                 String              @id @default(cuid())
   email              String              @unique
@@ -59,8 +54,7 @@ model Problem {
   id                 String              @id @default(cuid())
   title              String
   description        String
-  problemMarkdown    String? // Stores the content of Problem.md
-  structureMarkdown  String? // Stores the content of structure.md
+  problemMarkdown    String // Stores the content of Problem.md
   hidden             Boolean             @default(true)
   slug               String              @unique
   solved             Int                 @default(0)
@@ -71,31 +65,15 @@ model Problem {
   contests           ContestProblem[]
   submissions        Submission[]
   defaultCode        DefaultCode[]
-  testCases          TestCase[]
-  boilerplateCodes   BoilerplateCode[]
+  testCases          TestCase[] //added testcases
 }
 
 model TestCase {
   id        String   @id @default(cuid())
-  input     Json
-  output    Json
+  input     String[]
+  output    String[]
   problem   Problem  @relation(fields: [problemId], references: [id])
   problemId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model BoilerplateCode {
-  id              String          @id @default(cuid())
-  language        String // Alternatively, use an enum if languages are predefined
-  code            String // Stores the boilerplate code as a string
-  boilerplateType BoilerplateType // PARTIAL or FULL
-  problem         Problem         @relation(fields: [problemId], references: [id])
-  problemId       String
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-
-  @@unique([problemId, language, boilerplateType])
 }
 
 model DefaultCode {
@@ -103,6 +81,7 @@ model DefaultCode {
   languageId Int
   problemId  String
   code       String
+  fullcode   String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   problem    Problem  @relation(fields: [problemId], references: [id])

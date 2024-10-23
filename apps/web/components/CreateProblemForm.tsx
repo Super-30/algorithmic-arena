@@ -5,16 +5,20 @@ import { Input } from "@repo/ui/input";
 import { Button } from "@repo/ui/button";
 import MDEditor from "@uiw/react-md-editor";
 import { PlusIcon } from "lucide-react";
-import styles from './CreateProblemForm.module.css';
+import styles from "./CreateProblemForm.module.css";
+import Dropdown from "./Dropdown";
 
 const CreateProblemForm = () => {
   const [problemName, setProblemName] = useState("");
   const [functionName, setFunctionName] = useState("");
   const [inputFields, setInputFields] = useState([{ type: "", name: "" }]);
   const [outputFields, setOutputFields] = useState([{ type: "", name: "" }]);
-  const [testCases, setTestCases] = useState([{ input: [], output: "" }]);
-  const [descriptionValue, setDescriptionValue] = 
-    useState("**Code Description here**");
+  const [testCases, setTestCases] = useState([
+    { input: ["", []], output: [""] }
+  ]);
+  const [descriptionValue, setDescriptionValue] = useState(
+    "**Code Description here**"
+  );
 
   const addInputField = () => {
     setInputFields([...inputFields, { type: "", name: "" }]);
@@ -25,46 +29,35 @@ const CreateProblemForm = () => {
   };
 
   const addTestCase = () => {
-    setTestCases([...testCases, { input: [], output: "" }]);
+    setTestCases([...testCases, { input: ["", []], output: [""] }]);
   };
 
   const validateFormData = () => {
-
     if (!problemName.trim()) return false;
     if (!functionName.trim()) return false;
     if (!descriptionValue.trim()) return false;
-    
 
-    const validInputs = inputFields.every(field => 
-      field.type.trim() && field.name.trim()
+    const validInputs = inputFields.every(
+      (field) => field.type.trim() && field.name.trim()
     );
     if (!validInputs) return false;
 
-
-    const validOutputs = outputFields.every(field => 
-      field.type.trim() && field.name.trim()
+    const validOutputs = outputFields.every(
+      (field) => field.type.trim() && field.name.trim()
     );
     if (!validOutputs) return false;
 
-
-    const validTestCases = testCases.every(test => 
-      test.input.length > 0 && test.output.toString().trim()
+    const validTestCases = testCases.every(
+      (test) => test.input[0] && test.input[1] && test.output[0]
     );
     if (!validTestCases) return false;
 
     return true;
   };
 
-  const formatTestCases = () => {
-    return testCases.map(test => ({
-      input: Array.isArray(test.input) ? test.input : test.input.split(',').map(val => val.trim()),
-      expectedOutput: test.output
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateFormData()) {
       console.error("Form validation failed");
       return;
@@ -72,25 +65,22 @@ const CreateProblemForm = () => {
 
     try {
       const payload = {
-        problem: {
-          name: problemName,
-          description: descriptionValue,
-          functionDetails: {
-            name: functionName,
-            inputs: inputFields.map(field => ({
-              type: field.type.toLowerCase(),
-              name: field.name
-            })),
-            outputs: outputFields.map(field => ({
-              type: field.type.toLowerCase(),
-              name: field.name
-            }))
-          },
-          testCases: formatTestCases()
-        }
+        problemName,
+        functionName,
+        inputFields: inputFields.map(field => ({
+          type: field.type.toLowerCase(),
+          name: field.name
+        })),
+        outputFields: outputFields.map(field => ({
+          type: field.type.toLowerCase(),
+          name: field.name
+        })),
+        testCases,
+        problemDescription: descriptionValue,
+        problemMarkdown: descriptionValue
       };
 
-      const response = await axios.post("/api/test", payload);
+      const response = await axios.post("/api/problem/create", payload);
       console.log("Problem Created:", response.data);
     } catch (error) {
       console.error("Error creating problem:", error);
@@ -116,16 +106,16 @@ const CreateProblemForm = () => {
           </div>
 
           <div>
-            <label className="block  mb-2">Problem Description</label>
+            <label className="block mb-2">Problem Description</label>
             <div className={styles.editor}>
-  <MDEditor 
-    value={descriptionValue} 
-    preview="edit"
-    onChange={setDescriptionValue}
-    data-color-mode="dark"
-  />
-</div>
-
+              <MDEditor
+                value={descriptionValue}
+                preview="edit"
+                onChange={setDescriptionValue}
+                data-color-mode="dark"
+              />
+            </div>
+            <Dropdown />
           </div>
 
           <div>
@@ -143,7 +133,7 @@ const CreateProblemForm = () => {
             {inputFields.map((inputField, index) => (
               <div key={index} className="flex gap-4 mb-4">
                 <Input
-                  placeholder="Input Type (e.g., int)"
+                  placeholder="Input Type (e.g., list<int>)"
                   value={inputField.type}
                   onChange={(e) => {
                     const newInputFields = [...inputFields];
@@ -153,7 +143,7 @@ const CreateProblemForm = () => {
                   required
                 />
                 <Input
-                  placeholder="Input Name (e.g., input1)"
+                  placeholder="Input Name (e.g., arr)"
                   value={inputField.name}
                   onChange={(e) => {
                     const newInputFields = [...inputFields];
@@ -211,31 +201,46 @@ const CreateProblemForm = () => {
           <div>
             <label className="block mb-2">Test Cases</label>
             {testCases.map((testCase, index) => (
-              <div key={index} className="flex gap-4 mb-4">
-                <Input
-                  placeholder="Test Input (array format)"
-                  value={testCase.input.join(", ")}
-                  onChange={(e) => {
-                    const inputArray = e.target.value
-                      .split(",")
-                      .map((num) => num.trim())
-                      .filter((val) => val !== "");
-                    const newTestCases = [...testCases];
-                    newTestCases[index].input = inputArray;
-                    setTestCases(newTestCases);
-                  }}
-                  required
-                />
-                <Input
-                  placeholder="Expected Output"
-                  value={testCase.output}
-                  onChange={(e) => {
-                    const newTestCases = [...testCases];
-                    newTestCases[index].output = e.target.value;
-                    setTestCases(newTestCases);
-                  }}
-                  required
-                />
+              <div key={index} className="space-y-4 mb-4 p-4 border rounded">
+                <div className="flex gap-4">
+                  <Input
+                    placeholder="Size (e.g., 3)"
+                    value={testCase.input[0]}
+                    onChange={(e) => {
+                      const newTestCases = [...testCases];
+                      newTestCases[index].input[0] = e.target.value;
+                      setTestCases(newTestCases);
+                    }}
+                    required
+                  />
+                </div>
+                <div className="flex gap-4">
+                  <Input
+                    placeholder="Array elements (comma-separated)"
+                    value={testCase.input[1].join(", ")}
+                    onChange={(e) => {
+                      const arrayElements = e.target.value
+                        .split(",")
+                        .map(num => num.trim());
+                      const newTestCases = [...testCases];
+                      newTestCases[index].input[1] = arrayElements;
+                      setTestCases(newTestCases);
+                    }}
+                    required
+                  />
+                </div>
+                <div className="flex gap-4">
+                  <Input
+                    placeholder="Expected Output"
+                    value={testCase.output[0]}
+                    onChange={(e) => {
+                      const newTestCases = [...testCases];
+                      newTestCases[index].output[0] = e.target.value;
+                      setTestCases(newTestCases);
+                    }}
+                    required
+                  />
+                </div>
               </div>
             ))}
             <Button
@@ -248,7 +253,9 @@ const CreateProblemForm = () => {
           </div>
 
           <div className="pb-2">
-            <Button type="submit" className="w-full">Create Problem</Button>
+            <Button type="submit" className="w-full">
+              Create Problem
+            </Button>
           </div>
         </form>
       </div>
