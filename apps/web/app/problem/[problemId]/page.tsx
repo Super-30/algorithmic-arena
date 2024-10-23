@@ -1,6 +1,9 @@
+
+import ProblemPageClient from "../../../components/ProblemPageClient";
 import { ProblemStatement } from "../../../components/ProblemStatement";
 import { ProblemSubmitBar } from "../../../components/ProblemSubmitBar";
 import { getProblem } from "../../db/problem";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 export default async function ProblemPage({
   params: { problemId },
@@ -10,23 +13,13 @@ export default async function ProblemPage({
   };
 }) {
   const problem = await getProblem(problemId);
-  
   if (!problem) {
     return <div>Problem not found</div>;
   }
   // console.log(problem);
 
   return (
-    <div className="flex flex-col">
-      <main className="flex-1 py-8 md:py-12 grid md:grid-cols-2 gap-8 md:gap-12 px-2">
-        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6">
-          <div className="prose prose-stone dark:prose-invert">
-            <ProblemStatement description={problem.description} />
-          </div>
-        </div>
-        <ProblemSubmitBar problem={problem} />
-      </main>
-    </div>
+    <ProblemPageClient problem={problem} />
   );
 }
 export const dynamic = "force-dynamic";
