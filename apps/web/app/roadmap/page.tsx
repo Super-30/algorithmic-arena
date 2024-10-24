@@ -7,8 +7,13 @@ export default async function Page(): Promise<JSX.Element> {
 
   return (
     <main>
-      
-      <Roadmap problems={problems} />
+      <div className="grid-cols-12 ">
+        <div className="cols-span-2"></div>
+        <div className="cols-span-8">
+        
+        </div>
+      </div>
+      <Roadmap problems={problems} className='ml-8'/>
     </main>
   );
 }
