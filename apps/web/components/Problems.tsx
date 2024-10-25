@@ -70,7 +70,7 @@ export async function Problems({ query }: { query: string | null }) {
                   {problem.title.split("-").join(" ")}
                 </div>
                 <div className=" px-2 py-2 text-center w-[100px] capitalize ">
-                  <span className="inline-block bg-[#fa9542] text-white text-sm font-semibold rounded-full px-2 py-1 capitalize">
+                  <span className="inline-block bg-[#EA580C1A] text-[#FB923C] text-sm font-semibold rounded-full px-2 py-1 capitalize">
                     {problem.difficulty.toLocaleLowerCase()}
                   </span>
 
