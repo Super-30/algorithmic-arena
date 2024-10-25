@@ -1,67 +1,79 @@
+interface ProblemMetadata {
+  problemName: string;
+  functionName: string;
+  inputFields: { type: string; name: string }[];
+  outputFields: { type: string; name: string }[];
+  testCases: Array<{ input: any; output: any }>;
+}
+
 export class FullProblemDefinitionParser {
   problemName: string = "";
   functionName: string = "";
   inputFields: { type: string; name: string }[] = [];
   outputFields: { type: string; name: string }[] = [];
+  testCases: Array<{ input: any; output: any }>=[];
 
-  parse(input: string): void {
-    const lines = input.split("\n").map((line) => line.trim());
-    let currentSection: string | null = null;
 
-    lines.forEach((line) => {
-      if (line.startsWith("Problem Name:")) {
-        this.problemName = this.extractQuotedValue(line);
-      } else if (line.startsWith("Function Name:")) {
-        this.functionName = this.extractValue(line);
-      } else if (line.startsWith("Input Structure:")) {
-        currentSection = "input";
-      } else if (line.startsWith("Output Structure:")) {
-        currentSection = "output";
-      } else if (line.startsWith("Input Field:")) {
-        if (currentSection === "input") {
-          const field = this.extractField(line);
-          if (field) this.inputFields.push(field);
-        }
-      } else if (line.startsWith("Output Field:")) {
-        if (currentSection === "output") {
-          const field = this.extractField(line);
-          if (field) this.outputFields.push(field);
-        }
-      }
-    });
+  constructor(metadata: ProblemMetadata) {
+    this.problemName = metadata.problemName;
+    this.functionName = metadata.functionName;
+    this.inputFields = metadata.inputFields;
+    this.outputFields = metadata.outputFields;
   }
-
-  extractQuotedValue(line: string): string {
-    const match = line.match(/: "(.*)"$/);
-    return match ? match[1] : "";
-  }
-
-  extractValue(line: string): string {
-    const match = line.match(/: (\w+)$/);
-    return match ? match[1] : "";
-  }
-
-  extractField(line: string): { type: string; name: string } | null {
-    const match = line.match(/Field: (\w+(?:<\w+>)?) (\w+)$/);
-    return match ? { type: match[1], name: match[2] } : null;
-  }
-
-  generateCpp(): string {
+  generateCpp() {
     const inputs = this.inputFields
       .map((field) => `${this.mapTypeToCpp(field.type)} ${field.name}`)
       .join(", ");
+    
     const inputReads = this.inputFields
       .map((field, index) => {
-        if (field.type.startsWith("list<")) {
-          return `int size_${field.name};\n  std::istringstream(lines[${index}]) >> size_${field.name};\n  ${this.mapTypeToCpp(field.type)} ${field.name}(size_${field.name});\n  if(!size_${field.name}==0) {\n  \tstd::istringstream iss(lines[${index + 1}]);\n  \tfor (int i=0; i < size_arr; i++) iss >> arr[i];\n  }`;
+        if (field.type.startsWith("list<list<")) {
+          return `int outer_size_${field.name};\n` +
+                 `std::istringstream(lines[${index}]) >> outer_size_${field.name};\n` +
+                 `${this.mapTypeToCpp(field.type)} ${field.name}(outer_size_${field.name});\n` +
+                 `int line_index = ${index} + 1;\n` +
+                 `for (int i = 0; i < outer_size_${field.name}; i++) {\n` +
+                 `  int inner_size_${field.name};\n` +
+                 `  std::istringstream(lines[line_index]) >> inner_size_${field.name};\n` + 
+                 `  ${field.name}[i].resize(inner_size_${field.name});\n` +
+                 `  line_index++;\n` + 
+                 `  if (inner_size_${field.name} > 0) {\n` +
+                 `    std::istringstream iss(lines[line_index]);\n` +
+                 `    for (int j = 0; j < inner_size_${field.name}; j++) iss >> ${field.name}[i][j];\n` +
+                 `    line_index++;\n` +  
+                 `  }\n` +
+                 `}`; 
+        } else if (field.type.startsWith("list<")) {
+          return `int size_${field.name};\n  std::istringstream(lines[${index}]) >> size_${field.name};\n` +
+                 `${this.mapTypeToCpp(field.type)} ${field.name}(size_${field.name});\n` +
+                 `if(size_${field.name} > 0) {\n` +
+                 `  std::istringstream iss(lines[${index + 1}]);\n` +
+                 `  for (int i = 0; i < size_${field.name}; i++) iss >> ${field.name}[i];\n` +
+                 `}`; 
         } else {
           return `${this.mapTypeToCpp(field.type)} ${field.name};\n  std::istringstream(lines[${index}]) >> ${field.name};`;
         }
       })
       .join("\n  ");
-    const outputType = this.outputFields[0].type;
+
+    // Determine output type once
+    const outputType = this.mapTypeToCpp(this.outputFields[0].type); // Get the output type once
     const functionCall = `${outputType} result = ${this.functionName}(${this.inputFields.map((field) => field.name).join(", ")});`;
-    const outputWrite = `std::cout << result << std::endl;`;
+
+    // Generate the matrixToString function only if the output type is list<list<>>
+    const hasMatrixOutput = outputType.startsWith("std::vector<std::vector<");
+
+    const matrixToStringFunc = hasMatrixOutput ? `
+std::string matrixToString(const std::vector<std::vector<int>>& matrix) {
+    std::ostringstream oss;
+    for (const auto& row : matrix) {
+        for (const auto& elem : row) {
+            oss << elem << " ";
+        }
+        oss << "\\n"; 
+    }
+    return oss.str();
+}` : '';
 
     return `#include <iostream>
 #include <fstream>
@@ -69,23 +81,42 @@ export class FullProblemDefinitionParser {
 #include <string>
 #include <sstream>
 #include <climits>
+#include <algorithm>
+
+${matrixToStringFunc}
 
 ##USER_CODE_HERE##
 
 int main() {
-  std::ifstream file("/dev/problems/${this.problemName.toLowerCase().replace(" ", "-")}/tests/inputs/##INPUT_FILE_INDEX##.txt");
-  std::vector<std::string> lines;
-  std::string line;
-  while (std::getline(file, line)) lines.push_back(line);
+    std::ifstream file("/dev/problems/${this.problemName.toLowerCase().replace(" ", "-")}/tests/inputs/##INPUT_FILE_INDEX##.txt"); 
+    std::vector<std::string> lines;
+    std::string line;
 
-  file.close();
-  ${inputReads}
-  ${functionCall}
-  ${outputWrite}
-  return 0;
+    // Read lines from file
+    while (std::getline(file, line)) lines.push_back(line);
+    file.close();
+
+    // Ensure lines were read correctly
+    if (lines.empty()) {
+        std::cerr << "Error: Input file is empty or not found!" << std::endl;
+        return 1;
+    }
+
+    ${inputReads}
+    ${functionCall}
+    
+    // Convert result to string and print it if output is a matrix
+    ${hasMatrixOutput ? `std::cout << matrixToString(result) << std::endl;` : `std::cout << result << std::endl;`}
+
+    return 0;
 }
 `;
-  }
+}
+
+
+
+
+
 
   generateJava(): string {
     let inputReadIndex = 0;
@@ -250,6 +281,14 @@ fn main() -> io::Result<()> {
         return "std::vector<std::string>";
       case "list<bool>":
         return "std::vector<bool>";
+      case "list<list<int>>":
+        return "std::vector<std::vector<int>>";
+      case "list<list<float>>":
+        return "std::vector<std::vector<float>>";
+      case "list<list<string>>":
+        return "std::vector<std::vector<std::string>>";
+      case "list<list<bool>>":
+        return "std::vector<std::vector<bool>>";
       default:
         return "unknown";
     }
