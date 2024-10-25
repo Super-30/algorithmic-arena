@@ -19,9 +19,9 @@ export async function createProblem(problemData: {
   problemMarkdown: string; 
   difficulty: 'EASY' | 'MEDIUM' | 'HARD';
   testCases: Array<{ input: any; output: any }>;
-  functionName: string; // Provided by the user
-  inputFields: Array<{ type: string; name: string }>; // Provided by the user
-  outputFields: Array<{ type: string; name: string }>; // Provided by the user
+  functionName: string; 
+  inputFields: Array<{ type: string; name: string }>; 
+  outputFields: Array<{ type: string; name: string }>; 
 }) {
   const {
     problemName,
@@ -39,16 +39,16 @@ export async function createProblem(problemData: {
   const partialParser = new ProblemDefinitionParser({
     problemName: problemName,
     functionName: functionName,
-    inputFields: inputFields,   // Passed directly from user input
-    outputFields: outputFields, // Passed directly from user input
+    inputFields: inputFields,   
+    outputFields: outputFields, 
   });
 
   const fullParser = new FullProblemDefinitionParser({
     problemName: problemName,
     functionName: functionName,
-    inputFields: inputFields,   // Passed directly from user input
+    inputFields: inputFields,   
     outputFields: outputFields,
-    testCases: testCases // Passed directly from user input
+    testCases: testCases 
   });
   const testInput=testCases.map(testcase=>{
     testcase.input[0]
@@ -76,7 +76,7 @@ export async function createProblem(problemData: {
   
     const inputArray = testCases.map(testCase => testCase.input);
   
-    // Use for...of to handle async/await properly
+  
     for (let [index, input] of inputArray.entries()) {
       const formattedInput = formatTestCaseInput(input);
       const filePath = path.join(folderName, `${index}.txt`);
@@ -104,7 +104,7 @@ export async function createProblem(problemData: {
   
     const outputArray = testCases.map(testCase => testCase.output);
   
-    // Use for...of to handle async/await properly
+    
     for (let [index, output] of outputArray.entries()) {
       const formattedInput = formatTestCaseInput(output);
       const filePath = path.join(folderName, `${index}.txt`);
@@ -122,7 +122,7 @@ export async function createProblem(problemData: {
   }
 
   try {
-    // Generate Slug
+    
     const slug = generateSlug(problemName);
     
 

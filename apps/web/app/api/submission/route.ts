@@ -32,16 +32,16 @@ const CLOUDFLARE_TURNSTILE_URL =
   
       
       const isAllowed = await rateLimit(userId, 1, 10);
-      // if (!isAllowed && process.env.NODE_ENV === "production") {
-      //   return NextResponse.json(
-      //     {
-      //       message: `Too many requests. Please wait before submitting again.`,
-      //     },
-      //     {
-      //       status: 429,
-      //     }
-      //   );
-      // }
+      if (!isAllowed && process.env.NODE_ENV === "production") {
+        return NextResponse.json(
+          {
+            message: `Too many requests. Please wait before submitting again.`,
+          },
+          {
+            status: 429,
+          }
+        );
+      }
   
       const submissionInput = SubmissionInput.safeParse(await req.json());
       if (!submissionInput.success) {
@@ -86,7 +86,6 @@ const CLOUDFLARE_TURNSTILE_URL =
           id: submissionInput.data.problemId,
         },
       });
-      console.log('this is db Problem',dbProblem);
       
       if (!dbProblem) {
         return NextResponse.json(
@@ -130,6 +129,8 @@ const CLOUDFLARE_TURNSTILE_URL =
         ),
         expected_output: problem.outputs[index],
       }))
+      console.log('submitted code ',submissionCode );
+      
       
       // Submit to Judge0
       const response = await axios.post(
