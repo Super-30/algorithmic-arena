@@ -10,10 +10,10 @@ export default function Calendar() {
   const theme = {
     light: {
       level0: '#ebedf0', // No contributions
-      level1: '#d1d5db', // Low contributions (changed to gray)
-      level2: '#d1d5db', // Medium contributions (changed to gray)
-      level3: '#d1d5db', // High contributions (changed to gray)
-      level4: '#d1d5db', // Very high contributions (changed to gray)
+      level1: '#d1d5db', // Low contributions
+      level2: '#d1d5db', // Medium contributions
+      level3: '#d1d5db', // High contributions
+      level4: '#d1d5db', // Very high contributions
     },
     dark: {
       level0: '#2e3337', // No contributions
@@ -34,50 +34,47 @@ export default function Calendar() {
   };
 
   return (
-    <div className="p-6 rounded-lg shadow-lg bg-white dark:bg-gray-800 w-[calc(100vw*1.5)] mx-auto max-w-screen-lg relative">
-      <h2 className="text-lg font-bold mb-4 text-center text-gray-800 dark:text-white">
-        15 submissions in last 12 months
-      </h2>
+    <div className='border mt-4 rounded-2xl p-[1px] w-[913px] ml-[28px] h-fit'>
+      <div className="p-6 rounded-2xl w-fit relative">
+        <div className="w-full flex justify-between items-center">
+          <h2 className="text-lg font-bold mb-4 text-gray-800 dark:text-white">
+            15 submissions in last 12 months
+          </h2>
 
-      {/* Year selection dropdown positioned at the top right */}
-      <div className="absolute top-4 right-4">
-        <select 
-          value={selectedYear} 
-          onChange={handleYearChange}
-          className="p-2 rounded border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-600 text-gray-800 dark:text-white"
-        >
-          {Array.from({ length: 5 }, (_, i) => {
-            const year = new Date().getFullYear() - i;
-            return (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            );
-          })}
-        </select>
+          {/* Year selection dropdown positioned at the top right */}
+
+          <select
+            value={selectedYear}
+            onChange={handleYearChange}
+            className="p-2 rounded border bg-[#F1F5F9] dark:bg-[#020817] border-gray-300 dark:border-gray-700  text-gray-800 dark:text-white"
+          >
+            {Array.from({ length: 5 }, (_, i) => {
+              const year = new Date().getFullYear() - i;
+              return (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+
+        {/* Calendar with responsive custom styles */}
+        <div className=" mt-6">
+          <GitHubCalendar
+            username={username}
+            blockSize={12}
+            blockMargin={4}
+          //  responsive
+          // theme={theme.light} // You can toggle between light and dark themes dynamically
+          />
+        </div>
       </div>
 
-      {/* Calendar with custom styles */}
-      <div className="calendar-container grid grid-cols-7 gap-2 mt-4">
-        <GitHubCalendar 
-          username={username} 
-          blockSize={12} 
-          blockMargin={5}
-         // theme={theme} // Ensure the theme is correctly passed
-        />
+      <div className=' flex w-full rounded-lg gap-4 items-start text-left p-5 bg-[#F1F5F9] dark:bg-[#0F172A]'>
+        <p>Current streak : 5</p>
+        <p>Highest streak : 15</p>
       </div>
-
-      {/* Gap after each month */}
-      <style jsx>{`
-        .calendar-container {
-          display: grid;
-          grid-template-columns: repeat(7, 1fr);
-          gap: 10px; /* You can adjust the gap between blocks */
-        }
-        .calendar-container > div {
-          margin-bottom: 20px; /* Gap after each month */
-        }
-      `}</style>
     </div>
   );
 }
