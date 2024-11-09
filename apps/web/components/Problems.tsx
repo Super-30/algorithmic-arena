@@ -54,7 +54,7 @@ export async function Problems({ query }: { query: string | null }) {
           )}
         </div>
         <div className="mt-6">
-          <div className="border-2  rounded-md overflow-hidden dark:bg-background">
+          <div className="border-2  rounded-md overflow-hidden dark:bg-background ">
             <div className="flex  bg-muted font-bold">
               <div className="px-2 py-2 flex-1">Name</div>
               <div className="px-2 py-2 text-center w-[100px]">Difficulty</div>
@@ -63,14 +63,17 @@ export async function Problems({ query }: { query: string | null }) {
             {problems.map((problem) => (
               <Link
                 href={`/problem/${problem.id}`}
-                className="flex text-muted-foreground hover:bg-muted/50 duration-300"
+                className="flex hover:bg-muted/50 duration-300 border-b"
                 key={problem.id}
               >
                 <div className="px-2 py-2 flex-1 font-medium  capitalize">
                   {problem.title.split("-").join(" ")}
                 </div>
-                <div className=" px-2 py-2 text-center w-[100px] capitalize">
-                  {problem.difficulty.toLocaleLowerCase()}
+                <div className=" px-2 py-2 text-center w-[100px] capitalize ">
+                  <span className="inline-block bg-[#EA580C1A] text-[#FB923C] text-sm font-semibold rounded-full px-2 py-1 capitalize">
+                    {problem.difficulty.toLocaleLowerCase()}
+                  </span>
+
                 </div>
                 <div className="px-2 py-2 text-center w-[100px]">-</div>
               </Link>

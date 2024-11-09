@@ -1,4 +1,4 @@
-version: '3.5'
+# version: '3.5'
 
 services:
   # Next Auth Not Working in Docker
@@ -8,8 +8,8 @@ services:
   #     context: .
   #     dockerfile: Dockerfile
   #   container_name: app-container
-  #   environment:
-  #     - DATABASE_URL=postgresql://postgres:supersecurepassword@db:5432/algo-arena
+  #  environment:
+  #   - DATABASE_URL=postgresql://postgres:supersecurepassword@db:5432/algo-arena
   #   ports:
   #     - '3000:3000'  # Next.js app
   #   depends_on:
@@ -42,10 +42,10 @@ services:
     volumes:
       - ./judge0.conf:/judge0.conf:ro
       - type: bind
-        source: "##YOUR_LOCAL_PATH_TO_PROBLEMS_DIR## [repo]/apps/problems"
+        source: "/Users/mayanktripathi/code/Projects/algo-super30/algorithmic-arena"
         target: /dev/problems
     ports:
-      - "2358:2358"
+      - "2357:2358"
     privileged: true
     restart: always
     logging:
@@ -57,7 +57,7 @@ services:
     volumes:
       - ./judge0.conf:/judge0.conf:ro
       - type: bind
-        source: "##YOUR_LOCAL_PATH_TO_PROBLEMS_DIR## [repo]/apps/problems"
+        source: "/Users/mayanktripathi/code/Projects/algo-super30/algorithmic-arena"
         target: /dev/problems
     privileged: true
     restart: always
@@ -73,7 +73,7 @@ services:
     env_file: judge0.conf
     restart: always
     ports: 
-      - '6379:6379'
+      - '6380:6379'
     logging:
       driver: none
     volumes:
